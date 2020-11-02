@@ -10,17 +10,22 @@ socket.on("connect", () => {
 
 const store = createStore({
   state: {
-    gameState: null
+    gameState: null,
+    room: null
   },
   mutations: {
     SET_GAME_STATE(state, game) {
       state.gameState = game;
+    },
+    SET_ROOM_STATE(state, room) {
+      state.room = room;
     }
   },
   actions: {
     /** Reset the game to its initial state and send the update to the server. */
-    resetGame({ commit }) {
-      const newGame = BF.createNewGame(["player-1", "player-2"]);
+    resetGame({ commit, state: { room } }) {
+      const playerIds = room.users;
+      const newGame = BF.createNewGame(playerIds);
 
       return new Promise(resolve => {
         socket.emit("game:update", newGame, () => {
@@ -52,7 +57,8 @@ const store = createStore({
 
     /** Make the current player draw a card from the deck. */
     drawCard({ state: { gameState }, dispatch }) {
-      const newState = BF.drawCard(gameState);
+      const playerId = socket.id;
+      const newState = BF.drawCard(gameState, playerId);
       return dispatch("updateGame", newState);
     }
   },
@@ -61,6 +67,10 @@ const store = createStore({
 
 socket.on("game:update", newState => {
   store.commit("SET_GAME_STATE", newState);
+});
+
+socket.on("room:update", newRoom => {
+  store.commit("SET_ROOM_STATE", newRoom);
 });
 
 export default store;

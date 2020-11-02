@@ -104,12 +104,17 @@ export function createNewGame(playerIds) {
  * @todo Add a `playerId` parameter and add the drawn card to the player's hand.
  *
  * @param {GameState} gameState Current state of the game
+ * @param {string} playerId ID of the drawing player.
  * @returns {GameState} New state of the game.
  */
-export function drawCard(gameState) {
-  const newDeck = gameState.deck.slice(1);
+export function drawCard(gameState, playerId) {
+  const [card, ...newDeck] = gameState.deck;
   return {
     ...gameState,
+    players: {
+      ...gameState.players,
+      [playerId]: [...gameState.players[playerId], card]
+    },
     deck: newDeck
   };
 }

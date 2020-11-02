@@ -8,13 +8,25 @@ const defaultRoom = 'game-001'
 
 const state = {
   game: null,
+  room: {
+    users: []
+  }
 };
 
 io.on("connection", (socket) => {
   console.log("User connected", socket.id);
 
   // for now, everyone joins the same room
-  socket.join(defaultRoom)
+  socket.join(defaultRoom, () => {
+    state.room.users.push(socket.id)
+    io.to(defaultRoom).emit('room:update', state.room)
+  })
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected', socket.id)
+    state.room.users = state.room.users.filter(id => id !== socket.id)
+    socket.to(defaultRoom).emit('room:update', state.room)
+  })
 
   socket.on("game:join", (cb) => {
     console.log(socket.id, 'game:join')
