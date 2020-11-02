@@ -2,16 +2,11 @@ import { createStore } from "vuex";
 import io from "socket.io-client";
 import * as BF from "../bf-game";
 
-const socket = io("http://localhost:3000");
-
-socket.on("connect", () => {
-  console.log("Conected to server", socket.id);
-});
-
 const store = createStore({
   state: {
     gameState: null,
-    room: null
+    room: null,
+    userId: null
   },
   mutations: {
     SET_GAME_STATE(state, game) {
@@ -19,6 +14,9 @@ const store = createStore({
     },
     SET_ROOM_STATE(state, room) {
       state.room = room;
+    },
+    SET_USER_ID(state, id) {
+      state.userId = id;
     }
   },
   actions: {
@@ -63,6 +61,12 @@ const store = createStore({
     }
   },
   modules: {}
+});
+
+const socket = io("http://localhost:3000");
+
+socket.on("connect", () => {
+  store.commit("SET_USER_ID", socket.id);
 });
 
 socket.on("game:update", newState => {
