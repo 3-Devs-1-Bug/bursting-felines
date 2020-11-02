@@ -1,9 +1,34 @@
 const Server = require("socket.io");
 
-const io = new Server();
+const io = new Server({
+  serveClient: false,
+});
+
+const defaultRoom = 'game-001'
+
+const state = {
+  game: null,
+};
 
 io.on("connection", (socket) => {
   console.log("User connected", socket.id);
+
+  // for now, everyone joins the same room
+  socket.join(defaultRoom)
+
+  socket.on("game:join", (cb) => {
+    console.log(socket.id, 'game:join')
+    cb(state.game);
+  });
+
+  socket.on("game:update", (newGameState, cb) => {
+    console.log(socket.id, 'game:update', newGameState)
+    state.game = newGameState;
+    // propagate the update to everyone in the room
+    socket.to(defaultRoom).emit('game:update', newGameState)
+    cb();
+  });
 });
 
-io.listen(3000);
+const port = process.env.PORT || 3000
+io.listen(port);
