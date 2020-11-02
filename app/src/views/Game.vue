@@ -31,7 +31,7 @@ export default {
       if (!this.gameState) {
         return true;
       }
-      return !Object.keys(this.gameState.players).includes(this.userId);
+      return !this.gameState.players.includes(this.userId);
     }
   },
   methods: {

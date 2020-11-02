@@ -11,7 +11,10 @@ import { times, shuffle } from "./utils";
  * Represent the state of a game of Bursting Felines.
  * @typedef {Object} GameState
  * @property {string[]} deck
- * @property {Object} players Object associating each player with their hand.
+ * @property {string[]} players List of player IDs
+ * @property {Object} hands Object associating each player with their hand.
+ * @property {Object} statuses Object associating each player with their status (alive or dead).
+ * @property {number} turn
  */
 
 /**
@@ -32,6 +35,11 @@ export const CardType = {
   Combo3: "Combo3",
   Combo4: "Combo4",
   Combo5: "Combo5"
+};
+
+export const PlayerStatus = {
+  Alive: "Alive",
+  Dead: "Dead"
 };
 
 /** Associate each card type with its number of copies in the deck. */
@@ -68,15 +76,17 @@ export function createNewGame(playerIds) {
 
   // 2 & 3
   let deck = shuffle(baseDeck);
-  const players = {};
+  const playerHands = {};
+  const statuses = {};
   playerIds.forEach(playerId => {
-    players[playerId] = [
+    playerHands[playerId] = [
       deck.pop(),
       deck.pop(),
       deck.pop(),
       deck.pop(),
       CardType.Resurect
     ];
+    statuses[playerId] = PlayerStatus.Alive;
   });
 
   // 4
@@ -94,7 +104,10 @@ export function createNewGame(playerIds) {
 
   return {
     deck,
-    players
+    players: playerIds,
+    hands: playerHands,
+    statuses,
+    turn: 0
   };
 }
 
@@ -111,9 +124,9 @@ export function drawCard(gameState, playerId) {
   const [card, ...newDeck] = gameState.deck;
   return {
     ...gameState,
-    players: {
-      ...gameState.players,
-      [playerId]: [...gameState.players[playerId], card]
+    hands: {
+      ...gameState.hands,
+      [playerId]: [...gameState.hands[playerId], card]
     },
     deck: newDeck
   };
