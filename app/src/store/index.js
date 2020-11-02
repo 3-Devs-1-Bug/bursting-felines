@@ -5,7 +5,7 @@ import * as BF from "../bf-game";
 const socket = io("http://localhost:3000");
 
 socket.on("connect", () => {
-  console.log("Conected to server");
+  console.log("Conected to server", socket.id);
 });
 
 const store = createStore({
@@ -20,9 +20,7 @@ const store = createStore({
   actions: {
     /** Reset the game to its initial state and send the update to the server. */
     resetGame({ commit }) {
-      const newGame = {
-        deck: [BF.CardType.Perish, BF.CardType.Perish, BF.CardType.Perish]
-      };
+      const newGame = BF.createNewGame(["player-1", "player-2"]);
 
       return new Promise(resolve => {
         socket.emit("game:update", newGame, () => {
