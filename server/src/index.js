@@ -1,5 +1,7 @@
 const Server = require("socket.io");
 
+const { PORT } = require('./config')
+
 const io = new Server({
   serveClient: false,
 });
@@ -42,5 +44,4 @@ io.on("connection", (socket) => {
   });
 });
 
-const port = process.env.PORT || 3000
-io.listen(port);
+io.listen(PORT);
