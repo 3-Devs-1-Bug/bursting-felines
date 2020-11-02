@@ -1,6 +1,8 @@
 import { createStore } from "vuex";
 import io from "socket.io-client";
+
 import * as BF from "../bf-game";
+import { SERVER_URL } from "../config";
 
 const store = createStore({
   state: {
@@ -63,7 +65,7 @@ const store = createStore({
   modules: {}
 });
 
-const socket = io("http://localhost:3000");
+const socket = io(SERVER_URL);
 
 socket.on("connect", () => {
   store.commit("SET_USER_ID", socket.id);
