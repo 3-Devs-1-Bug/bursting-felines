@@ -5,6 +5,9 @@
 
   <hr />
 
+  <h2>Opponents</h2>
+  <Opponents :players="opponents"/>
+
   <template v-if="!isSpectator">
     <ul>
       <li v-for="(card, i) in playerCards" :key="i + card">
@@ -24,6 +27,7 @@
   <code>
     <pre>{{ roomJson }}</pre>
   </code>
+
   <hr />
   <code>
     <pre>{{ gameJson }}</pre>
@@ -32,6 +36,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+import Opponents from "../components/Opponents";
 
 import { getCurrentPlayerId, CardType } from "../bf-game";
 
@@ -44,6 +49,9 @@ export default {
   },
   mounted() {
     this.joinGame();
+  },
+  components: {
+    Opponents
   },
   computed: {
     ...mapState(["gameState", "room", "userId"]),
@@ -73,6 +81,24 @@ export default {
     },
     isUserTurn() {
       return this.currentPlayer === this.userId;
+    },
+    opponents() {
+      if (!this.gameState) {
+        return [];
+      }
+      const opponents = [];
+
+      for(var playerId in this.gameState.hands){
+        if(playerId === this.userId)
+          continue;
+        opponents.push({
+          playerId,
+          cardCount: this.gameState.hands[playerId].length,
+          isCurrentPlayer: this.currentPlayer === playerId
+        })
+      }
+      
+      return opponents;
     }
   },
 
