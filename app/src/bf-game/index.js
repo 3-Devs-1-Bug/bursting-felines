@@ -14,7 +14,9 @@ import { times, shuffle } from "./utils";
  * @property {string[]} players List of player IDs
  * @property {Object} hands Object associating each player with their hand.
  * @property {Object} statuses Object associating each player with their status (alive or dead).
- * @property {number} turn
+ * @property {number} turnCount Player turn counter. Whenever a player finishes
+ *   their turn. This should be incremented by 1. Note that a player taking two
+ *   turns because of an attack still counts as 1 "turn" on this counter.
  */
 
 /**
@@ -107,27 +109,32 @@ export function createNewGame(playerIds) {
     players: playerIds,
     hands: playerHands,
     statuses,
-    turn: 0
+    turnCount: 0
   };
 }
 
 /**
- * Calculate the new state of the game when a player draws a card.
- *
- * @todo Add a `playerId` parameter and add the drawn card to the player's hand.
+ * Calculate the new state of the game when a player draws a card. The player doing
+ * the action is determined by the `turnCount` property.
  *
  * @param {GameState} gameState Current state of the game
- * @param {string} playerId ID of the drawing player.
  * @returns {GameState} New state of the game.
  */
-export function drawCard(gameState, playerId) {
+export function drawCard(gameState) {
+  const playerId = getCurrentPlayerId(gameState);
   const [card, ...newDeck] = gameState.deck;
+
   return {
     ...gameState,
+    turnCount: gameState.turnCount + 1,
     hands: {
       ...gameState.hands,
       [playerId]: [...gameState.hands[playerId], card]
     },
     deck: newDeck
   };
+}
+
+export function getCurrentPlayerId(gameState) {
+  return gameState.players[gameState.turnCount % gameState.players.length];
 }
