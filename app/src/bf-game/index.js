@@ -5,12 +5,13 @@
  * state.
  */
 
-import { times, shuffle } from "./utils";
+import { times, shuffle, deepClone } from "./utils";
 
 /**
  * Represent the state of a game of Bursting Felines.
  * @typedef {Object} GameState
  * @property {string[]} deck
+ * @property {string[]} discardPile
  * @property {string[]} players List of player IDs
  * @property {Object} hands Object associating each player with their hand.
  * @property {Object} statuses Object associating each player with their status (alive or dead).
@@ -48,14 +49,14 @@ export const PlayerStatus = {
 const DeckConfig = {
   [CardType.Perish]: 4,
   [CardType.Resurect]: 6,
-  [CardType.Skip]: 4,
-  [CardType.Attack]: 4,
-  [CardType.Loot]: 4,
-  [CardType.Deny]: 5,
-  [CardType.Shuffle]: 4,
-  [CardType.Peek]: 5,
-  [CardType.Combo1]: 4,
-  [CardType.Combo2]: 4,
+  // [CardType.Skip]: 4,
+  // [CardType.Attack]: 4,
+  // [CardType.Loot]: 4,
+  // [CardType.Deny]: 5,
+  // [CardType.Shuffle]: 4,
+  // [CardType.Peek]: 5,
+  // [CardType.Combo1]: 4,
+  // [CardType.Combo2]: 4,
   [CardType.Combo3]: 4,
   [CardType.Combo4]: 4,
   [CardType.Combo5]: 4
@@ -92,7 +93,8 @@ export function createNewGame(playerIds) {
   });
 
   // 4
-  for (let i = 0; i < playerIds.length - 1; i++) {
+  // for (let i = 0; i < playerIds.length - 1; i++) {
+  for (let i = 0; i < 50 - 1; i++) {
     deck.push(CardType.Perish);
   }
 
@@ -106,6 +108,7 @@ export function createNewGame(playerIds) {
 
   return {
     deck,
+    discardPile: [],
     players: playerIds,
     hands: playerHands,
     statuses,
@@ -121,18 +124,33 @@ export function createNewGame(playerIds) {
  * @returns {GameState} New state of the game.
  */
 export function drawCard(gameState) {
-  const playerId = getCurrentPlayerId(gameState);
+  const newGameState = deepClone(gameState);
+
+  const playerId = getCurrentPlayerId(newGameState);
+  const playerHand = newGameState.hands[playerId];
   const [card, ...newDeck] = gameState.deck;
 
-  return {
-    ...gameState,
-    turnCount: gameState.turnCount + 1,
-    hands: {
-      ...gameState.hands,
-      [playerId]: [...gameState.hands[playerId], card]
-    },
-    deck: newDeck
-  };
+  if (card === CardType.Perish) {
+    const resurectCardIndex = playerHand.indexOf(CardType.Resurect);
+    if (resurectCardIndex !== -1) {
+      // Player save themselve using a Resurect card. Both the Perish and
+      // Resurect cards are discarded
+      const resurectCard = playerHand.splice(resurectCardIndex, 1);
+      gameState.discardPile.push(resurectCard, card);
+    } else {
+      // Player died. Their whole hand is discarded
+      const playerCards = playerHand.splice(0, playerHand.length);
+      gameState.discardPile.push(...playerCards, card);
+      gameState.statuses[playerId] = PlayerStatus.Dead;
+    }
+  } else {
+    playerHand.push(card);
+  }
+
+  newGameState.turnCount++;
+  newGameState.deck = newDeck;
+
+  return newGameState;
 }
 
 export function getCurrentPlayerId(gameState) {
