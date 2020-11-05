@@ -1,0 +1,15 @@
+body {
+    color: $color-primary;
+    background-color: $color-background;
+    font-family: $font-family-regular;
+}
+
+a {
+    color: inherit;
+    text-decoration: underline;
+
+    &:focus,
+    &:hover {
+        color: $color-primary;
+    }
+}

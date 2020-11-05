@@ -1,12 +1,17 @@
 <template>
   <div>This is the game page</div>
 
-  <button @click="resetGame">Reset game</button>
+  <Button @click="resetGame">Reset game</Button>
 
   <hr />
 
-  <h2>Opponents</h2>
   <Opponents :players="opponents"/>
+  <Deck :drawCard="drawCard"
+  :isSpectator="isSpectator"
+  :isUserTurn="isUserTurn"
+  :cardsInDeck="cardsInDeck"
+  :currentPlayer="currentPlayer"
+  />
 
   <template v-if="!isSpectator">
     <ul>
@@ -19,9 +24,7 @@
     </ul>
   </template>
 
-  <button v-if="!isSpectator" :disabled="!isUserTurn" @click="drawCard">
-    Pick a card
-  </button>
+
 
   <hr />
   <code>
@@ -37,6 +40,8 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import Opponents from "../components/Opponents";
+import Deck from "../components/Deck";
+import Button from "../components/Button";
 
 import { getCurrentPlayerId, CardType } from "../bf-game";
 
@@ -51,7 +56,9 @@ export default {
     this.joinGame();
   },
   components: {
-    Opponents
+    Opponents,
+    Deck,
+    Button
   },
   computed: {
     ...mapState(["gameState", "room", "userId"]),
@@ -99,6 +106,12 @@ export default {
       }
       
       return opponents;
+    },
+    cardsInDeck() {
+      if (!this.gameState) {
+        return 0;
+      }
+      return this.gameState.deck.length;
     }
   },
 
