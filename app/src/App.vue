@@ -5,3 +5,11 @@
   </nav>
   <router-view />
 </template>
+<style lang="scss">
+@import "styles/variables";
+body {
+  background-color: $color-background;
+  color: $color-primary;
+  font-family: $font-family-regular;
+}
+</style>
