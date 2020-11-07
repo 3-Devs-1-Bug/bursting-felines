@@ -16,32 +16,13 @@
     />
   </template>
 
-  <!-- TODO: move somewhere else and make it pretty -->
-  <template v-if="!isSpectator">
-    <ul class="cards">
-      <li v-for="(card, i) in playerCards" :key="i + card">
-        <Button v-if="card === CardType.Resurect" :disabled="!isPerishPhase">
-          Do not die
-        </Button>
-        <Button v-else-if="card !== CardType.Perish" :disabled="!isUserTurn">
-          Play card
-        </Button>
-        <span
-          class="card-name"
-          :class="{ 'card-name--perish': card === CardType.Perish }"
-        >
-          {{ card }}
-        </span>
-      </li>
-    </ul>
-
-    <p v-if="isUserTurn && isPerishPhase">
-      You are about to die ! (autoresolve in {{ resolveCountdown }})
-    </p>
-    <p v-else-if="isUserDead">
-      You died...
-    </p>
-  </template>
+  <Hand
+    :isUserDead="isUserDead"
+    :isUserTurn="isUserTurn"
+    :isPerishPhase="isPerishPhase"
+    :playerCards="playerCards"
+    :resolveCountdown="resolveCountdown"
+  />
 
   <hr />
   <code>
@@ -59,14 +40,14 @@ import { mapActions, mapState } from "vuex";
 import Opponents from "../components/Opponents";
 import Deck from "../components/Deck";
 import Button from "../components/Button";
+import Hand from "../components/Hand";
 
-import { getCurrentPlayerId, CardType, GamePhase, PlayerStatus } from "../bf-game";
+import { getCurrentPlayerId, GamePhase, PlayerStatus } from "../bf-game";
 
 export default {
   name: "GameView",
   data() {
     return {
-      CardType,
       resolveCountdown: 0
     };
   },
@@ -76,7 +57,8 @@ export default {
   components: {
     Opponents,
     Deck,
-    Button
+    Button,
+    Hand
   },
   computed: {
     ...mapState(["gameState", "room", "userId"]),
@@ -162,12 +144,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.cards {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.card-name--perish {
-  color: red;
-}
 </style>
