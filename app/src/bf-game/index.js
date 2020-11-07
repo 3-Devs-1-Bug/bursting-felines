@@ -5,18 +5,20 @@
  * state.
  */
 
-import { times, shuffle } from "./utils";
+import { times, shuffle, deepClone } from "./utils";
 
 /**
  * Represent the state of a game of Bursting Felines.
  * @typedef {Object} GameState
  * @property {string[]} deck
+ * @property {string[]} discardPile
  * @property {string[]} players List of player IDs
  * @property {Object} hands Object associating each player with their hand.
  * @property {Object} statuses Object associating each player with their status (alive or dead).
  * @property {number} turnCount Player turn counter. Whenever a player finishes
  *   their turn. This should be incremented by 1. Note that a player taking two
  *   turns because of an attack still counts as 1 "turn" on this counter.
+ * @property {string | null} specialPhase Used to represent special game situations that must be resolved.
  */
 
 /**
@@ -42,6 +44,15 @@ export const CardType = {
 export const PlayerStatus = {
   Alive: "Alive",
   Dead: "Dead"
+};
+
+export const GamePhase = {
+  /**
+   * When a player draws a Perish card, the game special phase is changed to
+   * `ResolvingPerish` the situation is resolved and the player either die or use
+   * a Resurect card to survive.
+   */
+  ResolvingPerish: "ResolvingPerish"
 };
 
 /** Associate each card type with its number of copies in the deck. */
@@ -106,10 +117,12 @@ export function createNewGame(playerIds) {
 
   return {
     deck,
+    discardPile: [],
     players: playerIds,
     hands: playerHands,
     statuses,
-    turnCount: 0
+    turnCount: 0,
+    specialPhase: null
   };
 }
 
@@ -121,20 +134,63 @@ export function createNewGame(playerIds) {
  * @returns {GameState} New state of the game.
  */
 export function drawCard(gameState) {
-  const playerId = getCurrentPlayerId(gameState);
+  const newGameState = deepClone(gameState);
+
+  const playerId = getCurrentPlayerId(newGameState);
+  const playerHand = newGameState.hands[playerId];
   const [card, ...newDeck] = gameState.deck;
 
-  return {
-    ...gameState,
-    turnCount: gameState.turnCount + 1,
-    hands: {
-      ...gameState.hands,
-      [playerId]: [...gameState.hands[playerId], card]
-    },
-    deck: newDeck
-  };
+  newGameState.deck = newDeck;
+
+  if (card === CardType.Perish) {
+    newGameState.specialPhase = GamePhase.ResolvingPerish;
+  } else {
+    newGameState.turnCount++;
+  }
+
+  playerHand.push(card);
+
+  return newGameState;
 }
 
 export function getCurrentPlayerId(gameState) {
   return gameState.players[gameState.turnCount % gameState.players.length];
+}
+
+/**
+ * Solve the `ResolvePerish` phase by either disarding a "Resurect" card to
+ * counter the "Perish" or by making the player die.
+ * @param {GameState} gameState
+ * @returns {GameState}
+ */
+export function solvePerish(gameState) {
+  if (gameState.specialPhase !== GamePhase.ResolvingPerish) {
+    throw new Error('Game must be in special phase "ResolvingPerish"');
+  }
+
+  /** @type {GameState} */
+  const newGameState = deepClone(gameState);
+  const currentPlayerId = getCurrentPlayerId(newGameState);
+  const playerHand = newGameState.hands[currentPlayerId];
+
+  const resurectCardIndex = playerHand.indexOf(CardType.Resurect);
+
+  if (resurectCardIndex !== -1) {
+    // Player save themselve using a Resurect card. Both the Perish and
+    // Resurect cards are discarded
+    const resurectCard = playerHand.splice(resurectCardIndex, 1)[0];
+    const perishCardIndex = playerHand.indexOf(CardType.Perish);
+    const perishCard = playerHand.splice(perishCardIndex, 1)[0];
+    newGameState.discardPile.push(resurectCard, perishCard);
+  } else {
+    // Player died. Their whole hand is discarded
+    const playerCards = playerHand.splice(0, playerHand.length);
+    newGameState.discardPile.push(...playerCards);
+    newGameState.statuses[currentPlayerId] = PlayerStatus.Dead;
+  }
+
+  newGameState.specialPhase = null;
+  newGameState.turnCount++;
+
+  return newGameState;
 }

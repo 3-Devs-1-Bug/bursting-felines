@@ -1,14 +1,14 @@
 <template>
-    <div class="Card">
-        {{text}}
-    </div>
+  <div class="Card">
+    {{ text }}
+  </div>
 </template>
 
 <script>
 export default {
   name: "Card",
   props: {
-    text: String
+    text: [String, Number]
   }
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="Deck">
-    <button :disabled="!isUserTurn" @click="drawCard">
+    <button :disabled="!isUserTurn" @click="$emit('draw')">
       <Card :text="cardsInDeck" />
     </button>
     <div v-if="isUserTurn">
@@ -11,7 +11,7 @@
     <div v-else>
       Waiting for
       <br />
-      {{ currentPlayer.substring(0,8) }}
+      {{ currentPlayer.substring(0, 8) }}
       <br />
       to pick card
     </div>
@@ -23,12 +23,12 @@ import Card from "./Card";
 export default {
   name: "Deck",
   props: {
-    drawCard: Function,
     isSpectator: Boolean,
     isUserTurn: Boolean,
     cardsInDeck: Number,
     currentPlayer: String
   },
+  emits: ["draw"],
   components: {
     Card
   }
