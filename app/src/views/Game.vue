@@ -16,6 +16,7 @@
     />
   </template>
 
+  <!-- TODO: move somewhere else and make it pretty -->
   <template v-if="!isSpectator">
     <ul class="cards">
       <li v-for="(card, i) in playerCards" :key="i + card">

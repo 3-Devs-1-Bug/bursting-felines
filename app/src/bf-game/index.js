@@ -18,7 +18,7 @@ import { times, shuffle, deepClone } from "./utils";
  * @property {number} turnCount Player turn counter. Whenever a player finishes
  *   their turn. This should be incremented by 1. Note that a player taking two
  *   turns because of an attack still counts as 1 "turn" on this counter.
- * @property {string | null} specialPhase
+ * @property {string | null} specialPhase Used to represent special game situations that must be resolved.
  */
 
 /**
@@ -47,6 +47,11 @@ export const PlayerStatus = {
 };
 
 export const GamePhase = {
+  /**
+   * When a player draws a Perish card, the game special phase is changed to
+   * `ResolvingPerish` the situation is resolved and the player either die or use
+   * a Resurect card to survive.
+   */
   ResolvingPerish: "ResolvingPerish"
 };
 
@@ -54,14 +59,14 @@ export const GamePhase = {
 const DeckConfig = {
   [CardType.Perish]: 4,
   [CardType.Resurect]: 6,
-  // [CardType.Skip]: 4,
-  // [CardType.Attack]: 4,
-  // [CardType.Loot]: 4,
-  // [CardType.Deny]: 5,
-  // [CardType.Shuffle]: 4,
-  // [CardType.Peek]: 5,
-  // [CardType.Combo1]: 4,
-  // [CardType.Combo2]: 4,
+  [CardType.Skip]: 4,
+  [CardType.Attack]: 4,
+  [CardType.Loot]: 4,
+  [CardType.Deny]: 5,
+  [CardType.Shuffle]: 4,
+  [CardType.Peek]: 5,
+  [CardType.Combo1]: 4,
+  [CardType.Combo2]: 4,
   [CardType.Combo3]: 4,
   [CardType.Combo4]: 4,
   [CardType.Combo5]: 4
@@ -98,8 +103,7 @@ export function createNewGame(playerIds) {
   });
 
   // 4
-  // for (let i = 0; i < playerIds.length - 1; i++) {
-  for (let i = 0; i < 50 - 1; i++) {
+  for (let i = 0; i < playerIds.length - 1; i++) {
     deck.push(CardType.Perish);
   }
 
@@ -154,7 +158,8 @@ export function getCurrentPlayerId(gameState) {
 }
 
 /**
- * Make the current player not die by using a "Resurect" card.
+ * Solve the `ResolvePerish` phase by either disarding a "Resurect" card to
+ * counter the "Perish" or by making the player die.
  * @param {GameState} gameState
  * @returns {GameState}
  */

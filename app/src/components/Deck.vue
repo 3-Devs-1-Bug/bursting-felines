@@ -23,7 +23,6 @@ import Card from "./Card";
 export default {
   name: "Deck",
   props: {
-    // drawCard: Function,
     isSpectator: Boolean,
     isUserTurn: Boolean,
     cardsInDeck: Number,
