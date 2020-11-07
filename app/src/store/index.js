@@ -62,8 +62,8 @@ const store = createStore({
       return dispatch("updateGame", newState);
     },
 
-    solvePerish({ state: { gameState }, dispatch }) {
-      return dispatch("updateGame", BF.solvePerish(gameState));
+    solvePerish({ state: { gameState }, dispatch }, perishNewIndex) {
+      return dispatch("updateGame", BF.solvePerish(gameState, perishNewIndex));
     }
   },
   modules: {}

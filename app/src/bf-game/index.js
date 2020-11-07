@@ -163,7 +163,7 @@ export function getCurrentPlayerId(gameState) {
  * @param {GameState} gameState
  * @returns {GameState}
  */
-export function solvePerish(gameState) {
+export function solvePerish(gameState, perishNewPosition) {
   if (gameState.specialPhase !== GamePhase.ResolvingPerish) {
     throw new Error('Game must be in special phase "ResolvingPerish"');
   }
@@ -176,12 +176,14 @@ export function solvePerish(gameState) {
   const resurectCardIndex = playerHand.indexOf(CardType.Resurect);
 
   if (resurectCardIndex !== -1) {
-    // Player save themselve using a Resurect card. Both the Perish and
-    // Resurect cards are discarded
+    // Player save themselve using a Resurect card.
+    // Resurect card is discarded
     const resurectCard = playerHand.splice(resurectCardIndex, 1)[0];
+    newGameState.discardPile.push(resurectCard);
+    // Perish card is re-inserted into deck at an index chosen by the player
     const perishCardIndex = playerHand.indexOf(CardType.Perish);
     const perishCard = playerHand.splice(perishCardIndex, 1)[0];
-    newGameState.discardPile.push(resurectCard, perishCard);
+    newGameState.deck.splice(perishNewPosition, 0, perishCard);
   } else {
     // Player died. Their whole hand is discarded
     const playerCards = playerHand.splice(0, playerHand.length);

@@ -22,6 +22,9 @@
     :is-perish-phase="isPerishPhase"
     :player-cards="playerCards"
     :resolve-countdown="resolveCountdown"
+    :player-count="playerCount"
+    :deck-count="deckCount"
+    @insert-perish="solvePerish"
   />
 
   <hr />
@@ -117,6 +120,12 @@ export default {
     },
     isUserDead() {
       return this.gameState?.statuses[this.userId] == PlayerStatus.Dead;
+    },
+    playerCount() {
+      return this.gameState?.players.length;
+    },
+    deckCount() {
+      return this.gameState?.deck.length;
     }
   },
 

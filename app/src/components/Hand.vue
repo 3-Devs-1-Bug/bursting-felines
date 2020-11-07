@@ -11,9 +11,21 @@
       </li>
     </ul>
 
-    <p v-if="isUserTurn && isPerishPhase">
-      You are about to die ! (autoresolve in {{ resolveCountdown }})
+    <p v-if="isUserTurn && isPerishPhase" class="PerishChoice">
+      You almost died ! Luckily, you had a Resurect card. Where do you want to
+      re-insert the Perish card ?
+      <br />
+      <Button @click="$emit('insert-perish', 0)">On top</Button>
+      <Button
+        v-for="index in playerCount"
+        :key="index"
+        @click="$emit('insert-perish', index)"
+        >Position {{ index }}</Button
+      >
+      <Button @click="$emit('insert-perish', lastIndex)">On bottom</Button>
+      <Button @click="$emit('insert-perish', randomIndex)">Random</Button>
     </p>
+
     <p v-else-if="isUserDead">
       You died...
     </p>
@@ -23,11 +35,13 @@
 <script>
 import { CardType } from "../bf-game";
 import Card from "./Card";
+import Button from "./Button";
 
 export default {
   name: "Hand",
   components: {
-    Card
+    Card,
+    Button
   },
   props: {
     isUserDead: Boolean,
@@ -42,18 +56,36 @@ export default {
     resolveCountdown: {
       type: Number,
       required: true
-    }
+    },
+
+    playerCount: Number,
+    deckCount: Number
   },
   data() {
     return {
       CardType
     };
+  },
+  computed: {
+    lastIndex() {
+      return this.deckCount - 1;
+    },
+    randomIndex() {
+      return Math.floor(Math.random() * this.deckCount);
+    }
   }
 };
 </script>
 
 <style lang="scss">
 @import "../styles/variables";
+
+.PerishChoice {
+  * + * {
+    margin-left: 0.4em;
+    margin-bottom: 0.4em;
+  }
+}
 
 .Cards {
   display: flex;
