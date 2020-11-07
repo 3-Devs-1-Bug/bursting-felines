@@ -60,7 +60,7 @@ import Opponents from "../components/Opponents";
 import Deck from "../components/Deck";
 import Button from "../components/Button";
 
-import { getCurrentPlayerId, CardType, GamePhase } from "../bf-game";
+import { getCurrentPlayerId, CardType, GamePhase, PlayerStatus } from "../bf-game";
 
 export default {
   name: "GameView",
@@ -134,7 +134,7 @@ export default {
       return this.gameState?.specialPhase === GamePhase.ResolvingPerish;
     },
     isUserDead() {
-      return this.gameState?.statuses[this.userId];
+      return this.gameState?.statuses[this.userId] == PlayerStatus.Dead;
     }
   },
 
