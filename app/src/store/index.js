@@ -60,6 +60,10 @@ const store = createStore({
       const playerId = socket.id;
       const newState = BF.drawCard(gameState, playerId);
       return dispatch("updateGame", newState);
+    },
+
+    solvePerish({ state: { gameState }, dispatch }) {
+      return dispatch("updateGame", BF.solvePerish(gameState));
     }
   },
   modules: {}

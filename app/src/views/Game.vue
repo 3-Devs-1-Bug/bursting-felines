@@ -5,26 +5,42 @@
 
   <hr />
 
-  <Opponents :players="opponents"/>
-  <Deck :drawCard="drawCard"
-  :isSpectator="isSpectator"
-  :isUserTurn="isUserTurn"
-  :cardsInDeck="cardsInDeck"
-  :currentPlayer="currentPlayer"
-  />
-
-  <template v-if="!isSpectator">
-    <ul>
-      <li v-for="(card, i) in playerCards" :key="i + card">
-        <button v-if="card !== CardType.Resurect" :disabled="!isUserTurn">
-          Play card
-        </button>
-        {{ card }}
-      </li>
-    </ul>
+  <template v-if="gameState">
+    <Opponents :players="opponents" />
+    <Deck
+      @draw="drawCard"
+      :isSpectator="isSpectator"
+      :isUserTurn="isUserTurn"
+      :cardsInDeck="cardsInDeck"
+      :currentPlayer="currentPlayer"
+    />
   </template>
 
+  <template v-if="!isSpectator">
+    <ul class="cards">
+      <li v-for="(card, i) in playerCards" :key="i + card">
+        <Button v-if="card === CardType.Resurect" :disabled="!isPerishPhase">
+          Do not die
+        </Button>
+        <Button v-else-if="card !== CardType.Perish" :disabled="!isUserTurn">
+          Play card
+        </Button>
+        <span
+          class="card-name"
+          :class="{ 'card-name--perish': card === CardType.Perish }"
+        >
+          {{ card }}
+        </span>
+      </li>
+    </ul>
 
+    <p v-if="isUserTurn && isPerishPhase">
+      You are about to die ! (autoresolve in {{ resolveCountdown }})
+    </p>
+    <p v-else-if="isUserDead">
+      You died...
+    </p>
+  </template>
 
   <hr />
   <code>
@@ -43,13 +59,14 @@ import Opponents from "../components/Opponents";
 import Deck from "../components/Deck";
 import Button from "../components/Button";
 
-import { getCurrentPlayerId, CardType } from "../bf-game";
+import { getCurrentPlayerId, CardType, GamePhase } from "../bf-game";
 
 export default {
   name: "GameView",
   data() {
     return {
-      CardType
+      CardType,
+      resolveCountdown: 0
     };
   },
   mounted() {
@@ -95,16 +112,15 @@ export default {
       }
       const opponents = [];
 
-      for(var playerId in this.gameState.hands){
-        if(playerId === this.userId)
-          continue;
+      for (var playerId in this.gameState.hands) {
+        if (playerId === this.userId) continue;
         opponents.push({
           playerId,
           cardCount: this.gameState.hands[playerId].length,
           isCurrentPlayer: this.currentPlayer === playerId
-        })
+        });
       }
-      
+
       return opponents;
     },
     cardsInDeck() {
@@ -112,11 +128,45 @@ export default {
         return 0;
       }
       return this.gameState.deck.length;
+    },
+    isPerishPhase() {
+      return this.gameState?.specialPhase === GamePhase.ResolvingPerish;
+    },
+    isUserDead() {
+      return this.gameState?.statuses[this.userId];
     }
   },
 
   methods: {
-    ...mapActions(["joinGame", "resetGame", "drawCard"])
+    ...mapActions(["joinGame", "resetGame", "drawCard", "solvePerish"])
+  },
+
+  watch: {
+    isPerishPhase(value, oldValue) {
+      if (this.isUserTurn && value && !oldValue) {
+        this.resolveCountdown = 3;
+        const cb = () => {
+          this.resolveCountdown--;
+          if (this.resolveCountdown > 0) {
+            setTimeout(cb, 1000);
+          } else {
+            this.solvePerish();
+          }
+        };
+        setTimeout(cb, 1000);
+      }
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.cards {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.card-name--perish {
+  color: red;
+}
+</style>

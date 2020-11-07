@@ -14,5 +14,9 @@
   min-height: 0.25em; // 4px
   border: 0.1em solid $color-primary;
   border-radius: 0.2em;
+
+  &:disabled {
+    color: adjust-color($color: $color-primary, $lightness: -50%);
+  }
 }
 </style>

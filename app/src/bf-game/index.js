@@ -18,6 +18,7 @@ import { times, shuffle, deepClone } from "./utils";
  * @property {number} turnCount Player turn counter. Whenever a player finishes
  *   their turn. This should be incremented by 1. Note that a player taking two
  *   turns because of an attack still counts as 1 "turn" on this counter.
+ * @property {string | null} specialPhase
  */
 
 /**
@@ -43,6 +44,10 @@ export const CardType = {
 export const PlayerStatus = {
   Alive: "Alive",
   Dead: "Dead"
+};
+
+export const GamePhase = {
+  ResolvingPerish: "ResolvingPerish"
 };
 
 /** Associate each card type with its number of copies in the deck. */
@@ -112,7 +117,8 @@ export function createNewGame(playerIds) {
     players: playerIds,
     hands: playerHands,
     statuses,
-    turnCount: 0
+    turnCount: 0,
+    specialPhase: null
   };
 }
 
@@ -130,29 +136,56 @@ export function drawCard(gameState) {
   const playerHand = newGameState.hands[playerId];
   const [card, ...newDeck] = gameState.deck;
 
+  newGameState.deck = newDeck;
+
   if (card === CardType.Perish) {
-    const resurectCardIndex = playerHand.indexOf(CardType.Resurect);
-    if (resurectCardIndex !== -1) {
-      // Player save themselve using a Resurect card. Both the Perish and
-      // Resurect cards are discarded
-      const resurectCard = playerHand.splice(resurectCardIndex, 1);
-      gameState.discardPile.push(resurectCard, card);
-    } else {
-      // Player died. Their whole hand is discarded
-      const playerCards = playerHand.splice(0, playerHand.length);
-      gameState.discardPile.push(...playerCards, card);
-      gameState.statuses[playerId] = PlayerStatus.Dead;
-    }
+    newGameState.specialPhase = GamePhase.ResolvingPerish;
   } else {
-    playerHand.push(card);
+    newGameState.turnCount++;
   }
 
-  newGameState.turnCount++;
-  newGameState.deck = newDeck;
+  playerHand.push(card);
 
   return newGameState;
 }
 
 export function getCurrentPlayerId(gameState) {
   return gameState.players[gameState.turnCount % gameState.players.length];
+}
+
+/**
+ * Make the current player not die by using a "Resurect" card.
+ * @param {GameState} gameState
+ * @returns {GameState}
+ */
+export function solvePerish(gameState) {
+  if (gameState.specialPhase !== GamePhase.ResolvingPerish) {
+    throw new Error('Game must be in special phase "ResolvingPerish"');
+  }
+
+  /** @type {GameState} */
+  const newGameState = deepClone(gameState);
+  const currentPlayerId = getCurrentPlayerId(newGameState);
+  const playerHand = newGameState.hands[currentPlayerId];
+
+  const resurectCardIndex = playerHand.indexOf(CardType.Resurect);
+
+  if (resurectCardIndex !== -1) {
+    // Player save themselve using a Resurect card. Both the Perish and
+    // Resurect cards are discarded
+    const resurectCard = playerHand.splice(resurectCardIndex, 1)[0];
+    const perishCardIndex = playerHand.indexOf(CardType.Perish);
+    const perishCard = playerHand.splice(perishCardIndex, 1)[0];
+    newGameState.discardPile.push(resurectCard, perishCard);
+  } else {
+    // Player died. Their whole hand is discarded
+    const playerCards = playerHand.splice(0, playerHand.length);
+    newGameState.discardPile.push(...playerCards);
+    newGameState.statuses[currentPlayerId] = PlayerStatus.Dead;
+  }
+
+  newGameState.specialPhase = null;
+  newGameState.turnCount++;
+
+  return newGameState;
 }
