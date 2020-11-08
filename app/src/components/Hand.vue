@@ -11,20 +11,23 @@
       </li>
     </ul>
 
-    <p v-if="isUserTurn && isPerishPhase" class="PerishChoice">
-      You almost died ! Luckily, you had a Resurect card. Where do you want to
-      re-insert the Perish card ?
-      <br />
-      <Button @click="$emit('insert-perish', 0)">On top</Button>
-      <Button
-        v-for="index in playerCount"
-        :key="index"
-        @click="$emit('insert-perish', index)"
-        >Position {{ index }}</Button
-      >
-      <Button @click="$emit('insert-perish', lastIndex)">On bottom</Button>
-      <Button @click="insertPerishAtRandom">Random</Button>
-    </p>
+    <div v-if="isUserTurn && isPerishPhase" class="PerishChoice">
+      <div>
+        You almost died ! Luckily, you had a Resurect card. Where do you want to
+        re-insert the Perish card ?
+      </div>
+      <div>
+        <Button @click="$emit('insert-perish', 0)">On top</Button>
+        <Button
+          v-for="index in playerCount"
+          :key="index"
+          @click="$emit('insert-perish', index)"
+          >Position {{ index }}</Button
+        >
+        <Button @click="$emit('insert-perish', lastIndex)">On bottom</Button>
+        <Button @click="insertPerishAtRandom">Random</Button>
+      </div>
+    </div>
 
     <p v-else-if="isUserDead">
       You died...
