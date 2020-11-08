@@ -8,20 +8,20 @@
   <template v-if="gameState">
     <Opponents :players="opponents" />
     <Deck
+      :is-spectator="isSpectator"
+      :is-user-turn="isUserTurn"
+      :cards-in-deck="cardsInDeck"
+      :current-player="currentPlayer"
       @draw="drawCard"
-      :isSpectator="isSpectator"
-      :isUserTurn="isUserTurn"
-      :cardsInDeck="cardsInDeck"
-      :currentPlayer="currentPlayer"
     />
   </template>
 
   <Hand
-    :isUserDead="isUserDead"
-    :isUserTurn="isUserTurn"
-    :isPerishPhase="isPerishPhase"
-    :playerCards="playerCards"
-    :resolveCountdown="resolveCountdown"
+    :is-user-dead="isUserDead"
+    :is-user-turn="isUserTurn"
+    :is-perish-phase="isPerishPhase"
+    :player-cards="playerCards"
+    :resolve-countdown="resolveCountdown"
   />
 
   <hr />
@@ -46,20 +46,20 @@ import { getCurrentPlayerId, GamePhase, PlayerStatus } from "../bf-game";
 
 export default {
   name: "GameView",
-  data() {
-    return {
-      resolveCountdown: 0
-    };
-  },
-  mounted() {
-    this.joinGame();
-  },
+
   components: {
     Opponents,
     Deck,
     Button,
     Hand
   },
+
+  data() {
+    return {
+      resolveCountdown: 0
+    };
+  },
+
   computed: {
     ...mapState(["gameState", "room", "userId"]),
     gameJson() {
@@ -120,10 +120,6 @@ export default {
     }
   },
 
-  methods: {
-    ...mapActions(["joinGame", "resetGame", "drawCard", "solvePerish"])
-  },
-
   watch: {
     isPerishPhase(value, oldValue) {
       if (this.isUserTurn && value && !oldValue) {
@@ -139,9 +135,16 @@ export default {
         setTimeout(cb, 1000);
       }
     }
+  },
+
+  mounted() {
+    this.joinGame();
+  },
+
+  methods: {
+    ...mapActions(["joinGame", "resetGame", "drawCard", "solvePerish"])
   }
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

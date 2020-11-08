@@ -1,7 +1,7 @@
 <template>
   <div class="Opponents">
     <div v-for="player in players" :key="player.playerId">
-      {{ player.playerId.substring(0,8) }}
+      {{ player.playerId.substring(0, 8) }}
       <div :class="['Player', { 'Player--Current': player.isCurrentPlayer }]">
         {{ player.cardCount }}
       </div>
@@ -13,7 +13,12 @@
 export default {
   name: "Opponents",
   props: {
-    players: Object
+    players: {
+      type: Array,
+      required: true,
+      // TODO: add Player object validator
+      validator: value => value.every(item => typeof item === "object")
+    }
   }
 };
 </script>

@@ -22,16 +22,22 @@
 import Card from "./Card";
 export default {
   name: "Deck",
+  components: {
+    Card
+  },
   props: {
     isSpectator: Boolean,
     isUserTurn: Boolean,
-    cardsInDeck: Number,
-    currentPlayer: String
+    cardsInDeck: {
+      type: Number,
+      required: true
+    },
+    currentPlayer: {
+      type: String,
+      required: true
+    }
   },
-  emits: ["draw"],
-  components: {
-    Card
-  }
+  emits: ["draw"]
 };
 </script>
 
