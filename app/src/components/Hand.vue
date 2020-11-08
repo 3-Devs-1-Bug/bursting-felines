@@ -29,17 +29,25 @@ export default {
   components: {
     Card
   },
-  data() {
-    return {
-      CardType
-    };
-  },
   props: {
     isUserDead: Boolean,
     isUserTurn: Boolean,
     isPerishPhase: Boolean,
-    playerCards: Array,
-    resolveCountdown: Number
+    playerCards: {
+      type: Array,
+      required: true,
+      validator: value =>
+        value.every(item => Object.values(CardType).includes(item))
+    },
+    resolveCountdown: {
+      type: Number,
+      required: true
+    }
+  },
+  data() {
+    return {
+      CardType
+    };
   }
 };
 </script>

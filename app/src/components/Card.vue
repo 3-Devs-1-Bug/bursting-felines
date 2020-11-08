@@ -8,7 +8,11 @@
 export default {
   name: "Card",
   props: {
-    text: [String, Number]
+    text: {
+      type: [String, Number],
+      required: false,
+      default: null
+    }
   }
 };
 </script>
