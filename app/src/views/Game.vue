@@ -123,9 +123,6 @@ export default {
     },
     playerCount() {
       return this.gameState?.players.length;
-    },
-    cardsInDeck() {
-      return this.gameState?.deck.length;
     }
   },
 

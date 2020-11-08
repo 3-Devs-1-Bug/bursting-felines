@@ -23,7 +23,7 @@
         >Position {{ index }}</Button
       >
       <Button @click="$emit('insert-perish', lastIndex)">On bottom</Button>
-      <Button @click="$emit('insert-perish', randomIndex)">Random</Button>
+      <Button @click="insertPerishAtRandom">Random</Button>
     </p>
 
     <p v-else-if="isUserDead">
@@ -57,10 +57,16 @@ export default {
       type: Number,
       required: true
     },
-
-    playerCount: Number,
-    cardsInDeck: Number
+    playerCount: {
+      type: Number,
+      default: 0
+    },
+    cardsInDeck: {
+      type: Number,
+      default: 0
+    }
   },
+  emits: ["insert-perish"],
   data() {
     return {
       CardType
@@ -69,9 +75,11 @@ export default {
   computed: {
     lastIndex() {
       return this.deckCount - 1;
-    },
-    randomIndex() {
-      return Math.floor(Math.random() * this.deckCount);
+    }
+  },
+  methods: {
+    insertPerishAtRandom() {
+      this.$emit("insert-perish", Math.floor(Math.random() * this.cardsInDeck));
     }
   }
 };
