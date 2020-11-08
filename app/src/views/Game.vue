@@ -23,7 +23,7 @@
     :player-cards="playerCards"
     :resolve-countdown="resolveCountdown"
     :player-count="playerCount"
-    :deck-count="deckCount"
+    :cards-in-deck="cardsInDeck"
     @insert-perish="solvePerish"
   />
 
@@ -124,7 +124,7 @@ export default {
     playerCount() {
       return this.gameState?.players.length;
     },
-    deckCount() {
+    cardsInDeck() {
       return this.gameState?.deck.length;
     }
   },

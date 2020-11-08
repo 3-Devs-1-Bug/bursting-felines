@@ -59,7 +59,7 @@ export default {
     },
 
     playerCount: Number,
-    deckCount: Number
+    cardsInDeck: Number
   },
   data() {
     return {
