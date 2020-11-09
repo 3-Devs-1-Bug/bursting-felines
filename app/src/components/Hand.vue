@@ -2,7 +2,11 @@
   <div>
     <ul class="Cards">
       <li v-for="(card, i) in playerCards" :key="i + card">
-        <button v-if="card === CardType.Resurect" :disabled="!isPerishPhase">
+        <button
+          v-if="card === CardType.Resurect"
+          :disabled="gamePhase !== GamePhase.ResolvingPerish"
+          @click="$emit('play-card', card)"
+        >
           <Card class="Resurect" :text="card" />
         </button>
         <button v-else-if="card !== CardType.Perish" :disabled="!isUserTurn">
@@ -11,10 +15,16 @@
       </li>
     </ul>
 
-    <div v-if="isUserTurn && isPerishPhase" class="PerishChoice">
+    <div v-if="isUserTurn && gamePhase === GamePhase.ResolvingPerish">
+      Quick ! Use your Resurect card ! You will die in {{ resolveCountdown }}
+    </div>
+
+    <div
+      v-if="isUserTurn && gamePhase === GamePhase.InsertingPerishCard"
+      class="PerishChoice"
+    >
       <div>
-        You almost died ! Luckily, you had a Resurect card. Where do you want to
-        re-insert the Perish card ?
+        Wow, that was close ! Where do you want to re-insert the Perish card ?
       </div>
       <div>
         <Button @click="$emit('insert-perish', 0)">On top</Button>
@@ -30,13 +40,13 @@
     </div>
 
     <p v-else-if="isUserDead">
-      You died...
+      You died a terrible death...
     </p>
   </div>
 </template>
 
 <script>
-import { CardType } from "../bf-game";
+import { CardType, GamePhase } from "../bf-game";
 import Card from "./Card";
 import Button from "./Button";
 
@@ -49,7 +59,10 @@ export default {
   props: {
     isUserDead: Boolean,
     isUserTurn: Boolean,
-    isPerishPhase: Boolean,
+    gamePhase: {
+      type: String,
+      validator: value => Object.values(GamePhase).includes(value)
+    },
     playerCards: {
       type: Array,
       required: true,
@@ -69,10 +82,11 @@ export default {
       default: 0
     }
   },
-  emits: ["insert-perish"],
+  emits: ["insert-perish", "play-card"],
   data() {
     return {
-      CardType
+      CardType,
+      GamePhase
     };
   },
   computed: {

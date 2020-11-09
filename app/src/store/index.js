@@ -62,9 +62,20 @@ const store = createStore({
       return dispatch("updateGame", newState);
     },
 
-    solvePerish({ state: { gameState }, dispatch }, perishNewIndex) {
-      return dispatch("updateGame", BF.solvePerish(gameState, perishNewIndex));
-    }
+    insertPerish({ state: { gameState }, dispatch }, perishNewIndex) {
+      return dispatch("updateGame", BF.insertPerish(gameState, perishNewIndex));
+    },
+
+    perish({ state: { gameState }, dispatch }) {
+      return dispatch("updateGame", BF.perish(gameState));
+    },
+
+    playCard({ state: { gameState }, dispatch }, card) {
+      const newState = BF.playCard(gameState, card);
+      return dispatch("updateGame", newState);
+    },
+
+    
   },
   modules: {}
 });

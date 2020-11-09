@@ -19,12 +19,13 @@
   <Hand
     :is-user-dead="isUserDead"
     :is-user-turn="isUserTurn"
-    :is-perish-phase="isPerishPhase"
+    :game-phase="gamePhase"
     :player-cards="playerCards"
     :resolve-countdown="resolveCountdown"
     :player-count="playerCount"
     :cards-in-deck="cardsInDeck"
-    @insert-perish="solvePerish"
+    @play-card="playCard"
+    @insert-perish="insertPerish"
   />
 
   <hr />
@@ -45,7 +46,7 @@ import Deck from "../components/Deck";
 import Button from "../components/Button";
 import Hand from "../components/Hand";
 
-import { getCurrentPlayerId, GamePhase, PlayerStatus } from "../bf-game";
+import { getCurrentPlayerId, PlayerStatus, GamePhase } from "../bf-game";
 
 export default {
   name: "GameView",
@@ -115,6 +116,9 @@ export default {
       }
       return this.gameState.deck.length;
     },
+    gamePhase() {
+      return this.gameState?.specialPhase;
+    },
     isPerishPhase() {
       return this.gameState?.specialPhase === GamePhase.ResolvingPerish;
     },
@@ -127,18 +131,33 @@ export default {
   },
 
   watch: {
+    // isPerishPhase(value, oldValue) {
+    //   if (this.isUserTurn && value && !oldValue) {
+
+    //     this.resolveCountdown = 10;
+    //     const cb = () => {
+    //       this.resolveCountdown--;
+    //       if (this.resolveCountdown > 0) {
+    //         setTimeout(cb, 1000);
+    //       } else {
+    //         this.perish();
+    //       }
+    //     };
+    //     setTimeout(cb, 1000);
+    //   }
+    // }
     isPerishPhase(value, oldValue) {
+      if(value !== GamePhase.ResolvingPerish) clearInterval(counter);
       if (this.isUserTurn && value && !oldValue) {
-        this.resolveCountdown = 3;
-        const cb = () => {
-          this.resolveCountdown--;
-          if (this.resolveCountdown > 0) {
-            setTimeout(cb, 1000);
-          } else {
-            this.solvePerish();
+        this.resolveCountdown = 10000;
+        var counter = setInterval(timer, 10);
+        const timer = () => {
+          if (this.resolveCountdown <= 0) {
+            clearInterval(counter);
+            return;
           }
+          this.resolveCountdown--;
         };
-        setTimeout(cb, 1000);
       }
     }
   },
@@ -148,7 +167,14 @@ export default {
   },
 
   methods: {
-    ...mapActions(["joinGame", "resetGame", "drawCard", "solvePerish"])
+    ...mapActions([
+      "joinGame",
+      "resetGame",
+      "drawCard",
+      "insertPerish",
+      "perish",
+      "playCard"
+    ])
   }
 };
 </script>
