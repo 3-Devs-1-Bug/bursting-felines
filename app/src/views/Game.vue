@@ -60,7 +60,8 @@ export default {
 
   data() {
     return {
-      resolveCountdown: 0
+      resolveCountdown: 0,
+      perishCountdown: null
     };
   },
 
@@ -132,9 +133,7 @@ export default {
 
   watch: {
     isPerishPhase(value, oldValue) {
-      if(value !== GamePhase.ResolvingPerish) {
-        clearInterval(counter);
-      }
+      if(!value) clearInterval(this.perishCountdown);
 
       if (this.isUserTurn && value && !oldValue) {
         this.resolveCountdown = 1000;
@@ -142,13 +141,13 @@ export default {
         const timer = () => {
           if (this.resolveCountdown <= 0) {
             this.perish();
-            clearInterval(counter);
+            clearInterval(this.perishCountdown);
             return;
           }
           this.resolveCountdown--;
         };
 
-        var counter = setInterval(timer, 10);
+        this.perishCountdown = setInterval(timer, 10);
       }
     }
   },
