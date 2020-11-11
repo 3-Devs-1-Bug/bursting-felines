@@ -62,36 +62,20 @@ export const GamePhase = {
 };
 
 /** Associate each card type with its number of copies in the deck. */
-// const DeckConfig = {
-//   [CardType.Perish]: 4,
-//   [CardType.Resurect]: 6,
-//   [CardType.Skip]: 4,
-//   [CardType.Attack]: 4,
-//   [CardType.Loot]: 4,
-//   [CardType.Deny]: 5,
-//   [CardType.Shuffle]: 4,
-//   [CardType.Peek]: 5,
-//   [CardType.Combo1]: 4,
-//   [CardType.Combo2]: 4,
-//   [CardType.Combo3]: 4,
-//   [CardType.Combo4]: 4,
-//   [CardType.Combo5]: 4
-// };
-
 const DeckConfig = {
   [CardType.Perish]: 4,
   [CardType.Resurect]: 6,
-  [CardType.Skip]: 1,
-  [CardType.Attack]: 1,
-  [CardType.Loot]: 1,
-  [CardType.Deny]: 1,
-  [CardType.Shuffle]: 1,
-  [CardType.Peek]: 1,
-  [CardType.Combo1]: 1,
-  [CardType.Combo2]: 1,
-  [CardType.Combo3]: 1,
-  [CardType.Combo4]: 1,
-  [CardType.Combo5]: 1
+  [CardType.Skip]: 4,
+  [CardType.Attack]: 4,
+  [CardType.Loot]: 4,
+  [CardType.Deny]: 5,
+  [CardType.Shuffle]: 4,
+  [CardType.Peek]: 5,
+  [CardType.Combo1]: 4,
+  [CardType.Combo2]: 4,
+  [CardType.Combo3]: 4,
+  [CardType.Combo4]: 4,
+  [CardType.Combo5]: 4
 };
 
 /**
