@@ -131,33 +131,24 @@ export default {
   },
 
   watch: {
-    // isPerishPhase(value, oldValue) {
-    //   if (this.isUserTurn && value && !oldValue) {
-
-    //     this.resolveCountdown = 10;
-    //     const cb = () => {
-    //       this.resolveCountdown--;
-    //       if (this.resolveCountdown > 0) {
-    //         setTimeout(cb, 1000);
-    //       } else {
-    //         this.perish();
-    //       }
-    //     };
-    //     setTimeout(cb, 1000);
-    //   }
-    // }
     isPerishPhase(value, oldValue) {
-      if(value !== GamePhase.ResolvingPerish) clearInterval(counter);
+      if(value !== GamePhase.ResolvingPerish) {
+        clearInterval(counter);
+      }
+
       if (this.isUserTurn && value && !oldValue) {
-        this.resolveCountdown = 10000;
-        var counter = setInterval(timer, 10);
+        this.resolveCountdown = 1000;
+        
         const timer = () => {
           if (this.resolveCountdown <= 0) {
+            this.perish();
             clearInterval(counter);
             return;
           }
           this.resolveCountdown--;
         };
+
+        var counter = setInterval(timer, 10);
       }
     }
   },

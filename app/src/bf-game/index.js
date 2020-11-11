@@ -168,11 +168,11 @@ export function drawCard(gameState) {
     // kill of player instantly he has no Resurect
 
     if (playerHand.indexOf(this.CardType.Resurect) === -1) {
-      console.log("autokill")
+      console.log("Player had no Resurect, terminate")
       return perish(gameState);
     }
     else {
-      console.log("player has a resurect to play")
+      console.log("Player has a resurect to play")
       newGameState.specialPhase = GamePhase.ResolvingPerish;
     }
 
