@@ -1,12 +1,12 @@
 const Server = require("socket.io");
 
-const { PORT } = require('./config')
+const { PORT } = require("./config");
 
 const io = new Server({
-  serveClient: false,
+  serveClient: false
 });
 
-const defaultRoom = 'game-001'
+const defaultRoom = "game-001";
 
 const state = {
   game: null,
@@ -15,31 +15,31 @@ const state = {
   }
 };
 
-io.on("connection", (socket) => {
+io.on("connection", socket => {
   console.log("User connected", socket.id);
 
   // for now, everyone joins the same room
   socket.join(defaultRoom, () => {
-    state.room.users.push(socket.id)
-    io.to(defaultRoom).emit('room:update', state.room)
-  })
+    state.room.users.push(socket.id);
+    io.to(defaultRoom).emit("room:update", state.room);
+  });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected', socket.id)
-    state.room.users = state.room.users.filter(id => id !== socket.id)
-    socket.to(defaultRoom).emit('room:update', state.room)
-  })
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+    state.room.users = state.room.users.filter(id => id !== socket.id);
+    socket.to(defaultRoom).emit("room:update", state.room);
+  });
 
-  socket.on("game:join", (cb) => {
-    console.log(socket.id, 'game:join')
+  socket.on("game:join", cb => {
+    console.log(socket.id, "game:join");
     cb(state.game);
   });
 
   socket.on("game:update", (newGameState, cb) => {
-    console.log(socket.id, 'game:update', newGameState)
+    console.log(socket.id, "game:update", newGameState);
     state.game = newGameState;
     // propagate the update to everyone in the room
-    socket.to(defaultRoom).emit('game:update', newGameState)
+    socket.to(defaultRoom).emit("game:update", newGameState);
     cb();
   });
 });
