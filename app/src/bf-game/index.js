@@ -152,14 +152,12 @@ export function drawCard(gameState) {
     // kill of player instantly he has no Resurect
 
     if (playerHand.indexOf(this.CardType.Resurect) === -1) {
-      console.log("Player had no Resurect, terminate")
+      console.log("Player had no Resurect, terminate");
       return perish(gameState);
-    }
-    else {
-      console.log("Player has a resurect to play")
+    } else {
+      console.log("Player has a resurect to play");
       newGameState.specialPhase = GamePhase.ResolvingPerish;
     }
-
   } else {
     newGameState.turnCount++;
   }
@@ -179,7 +177,10 @@ export function drawCard(gameState) {
 export function playCard(gameState, card) {
   const newGameState = deepClone(gameState);
 
-  if (card === CardType.Resurect && gameState.specialPhase === GamePhase.ResolvingPerish) {
+  if (
+    card === CardType.Resurect &&
+    gameState.specialPhase === GamePhase.ResolvingPerish
+  ) {
     newGameState.specialPhase = GamePhase.InsertingPerishCard;
   } else {
     newGameState.turnCount++;
@@ -192,7 +193,7 @@ export function playCard(gameState, card) {
 
   console.log("player " + playerId.substring(0, 8) + " played " + card);
 
-  newGameState.discardPile.push(card)
+  newGameState.discardPile.push(card);
 
   return newGameState;
 }

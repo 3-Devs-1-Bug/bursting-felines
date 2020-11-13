@@ -73,9 +73,7 @@ const store = createStore({
     playCard({ state: { gameState }, dispatch }, card) {
       const newState = BF.playCard(gameState, card);
       return dispatch("updateGame", newState);
-    },
-
-    
+    }
   },
   modules: {}
 });

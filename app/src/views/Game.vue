@@ -133,11 +133,11 @@ export default {
 
   watch: {
     isPerishPhase(value, oldValue) {
-      if(!value) clearInterval(this.perishCountdown);
+      if (!value) clearInterval(this.perishCountdown);
 
       if (this.isUserTurn && value && !oldValue) {
         this.resolveCountdown = 1000;
-        
+
         const timer = () => {
           if (this.resolveCountdown <= 0) {
             this.perish();

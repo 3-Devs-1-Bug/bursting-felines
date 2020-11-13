@@ -61,6 +61,7 @@ export default {
     isUserTurn: Boolean,
     gamePhase: {
       type: String,
+      default: null,
       validator: value => Object.values(GamePhase).includes(value)
     },
     playerCards: {
