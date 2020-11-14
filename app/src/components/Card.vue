@@ -2,7 +2,10 @@
   <component
     :is="tag"
     class="Card"
-    :class="{ ['Card--' + type]: type, Card__Placeholder: isPlaceHolder }"
+    :class="{
+      ['Card--' + type]: type,
+      'Card--Placeholder': isPlaceHolder
+    }"
   >
     <div class="Card__Text">
       {{ text }}
@@ -90,10 +93,6 @@ $card-colors: (
   padding: 0;
   transition: transform 0.075s ease-in-out;
 
-  &__Placeholder {
-    border: 0.2rem dashed $color-primary;
-  }
-
   &__Text {
     flex: 1;
     display: flex;
@@ -113,15 +112,21 @@ $card-colors: (
     font-weight: 600;
   }
 
-  &:hover,
-  &:focus {
-    transform: translateY(-0.5rem);
+  &--Placeholder {
+    border: 0.2rem dashed $color-primary;
   }
 
   @each $card-type, $card-color in $card-colors {
     &--#{$card-type} {
       @include card-colors-style($card-color);
     }
+  }
+}
+
+button.Card {
+  &:hover,
+  &:focus {
+    transform: translateY(-0.5rem);
   }
 }
 </style>
