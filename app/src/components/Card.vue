@@ -1,5 +1,9 @@
 <template>
-  <component :is="tag" class="Card" :class="{ ['Card--' + type]: type }">
+  <component
+    :is="tag"
+    class="Card"
+    :class="{ ['Card--' + type]: type, Card__Placeholder: isPlaceHolder }"
+  >
     <div class="Card__Text">
       {{ text }}
     </div>
@@ -30,6 +34,11 @@ export default {
       type: String,
       required: false,
       default: "div"
+    },
+    isPlaceHolder: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   }
 };
@@ -80,6 +89,10 @@ $card-colors: (
   margin: 0.3rem;
   padding: 0;
   transition: transform 0.075s ease-in-out;
+
+  &__Placeholder {
+    border: 0.2rem dashed $color-primary;
+  }
 
   &__Text {
     flex: 1;

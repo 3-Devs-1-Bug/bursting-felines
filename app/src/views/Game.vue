@@ -7,13 +7,14 @@
 
   <template v-if="gameState">
     <Opponents :players="opponents" />
-    <Deck
-      :is-spectator="isSpectator"
-      :is-user-turn="isUserTurn"
-      :cards-in-deck="cardsInDeck"
-      :current-player="currentPlayer"
-      @draw="drawCard"
-    />
+    <div class="GameBoard">
+      <button :disabled="!isUserTurn" @click="drawCard">
+        <Card :text="cardsInDeck" />
+      </button>
+      <Card v-if="lastDiscardedCard" :type="lastDiscardedCard" />
+      <Card v-else :is-place-holder="true" />
+    </div>
+    <Information :is-user-turn="isUserTurn" :current-player="currentPlayer" />
   </template>
 
   <Hand
@@ -42,9 +43,10 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import Opponents from "../components/Opponents";
-import Deck from "../components/Deck";
+import Information from "../components/Information";
 import Button from "../components/Button";
 import Hand from "../components/Hand";
+import Card from "../components/Card";
 
 import { getCurrentPlayerId, PlayerStatus, GamePhase } from "../bf-game";
 
@@ -53,9 +55,10 @@ export default {
 
   components: {
     Opponents,
-    Deck,
+    Information,
     Button,
-    Hand
+    Hand,
+    Card
   },
 
   data() {
@@ -128,6 +131,9 @@ export default {
     },
     playerCount() {
       return this.gameState?.players.length;
+    },
+    lastDiscardedCard() {
+      return this.gameState?.discardPile[0];
     }
   },
 
@@ -169,4 +175,10 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+@import "../styles/variables";
+.GameBoard {
+  display: flex;
+  justify-content: space-around;
+}
+</style>

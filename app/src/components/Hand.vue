@@ -6,9 +6,9 @@
           v-if="card === CardType.Resurect"
           tag="button"
           text="Recruit a new dev"
-          @click="$emit('play-card', card)"
           :type="card"
           :disabled="isCardDisabled(card)"
+          @click="$emit('play-card', card)"
         />
         <Card
           v-else-if="card !== CardType.Perish"
