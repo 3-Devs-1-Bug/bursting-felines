@@ -3,17 +3,8 @@
     <ul class="Cards">
       <li v-for="(card, i) in playerCards" :key="i + card">
         <Card
-          v-if="card === CardType.Resurect"
           tag="button"
-          text="Recruit a new dev"
-          :type="card"
           :disabled="isCardDisabled(card)"
-          @click="$emit('play-card', card)"
-        />
-        <Card
-          v-else-if="card !== CardType.Perish"
-          tag="button"
-          :disabled="!isUserTurn"
           :type="card"
           text="Lorem Ipsum"
           @click="$emit('play-card', card)"
