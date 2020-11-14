@@ -3,13 +3,9 @@
     <ul class="Cards">
       <li v-for="(card, i) in playerCards" :key="i + card">
         <button
-          v-if="card === CardType.Resurect"
-          :disabled="gamePhase !== GamePhase.ResolvingPerish"
+          :disabled="isCardDisabled(card)"
           @click="$emit('play-card', card)"
         >
-          <Card class="Resurect" :text="card" />
-        </button>
-        <button v-else-if="card !== CardType.Perish" :disabled="!isUserTurn">
           <Card :class="card" :text="card" />
         </button>
       </li>
@@ -98,6 +94,27 @@ export default {
   methods: {
     insertPerishAtRandom() {
       this.$emit("insert-perish", Math.floor(Math.random() * this.cardsInDeck));
+    },
+    isCardDisabled(card) {
+      // every cards are disabled when it's not the players turn (for now)
+      if (!this.isUserTurn) {
+        return true;
+      }
+
+      // resurect cards can only be played during the ResolvingPerish phase
+      if (
+        card === CardType.Resurect &&
+        this.gamePhase !== GamePhase.ResolvingPerish
+      ) {
+        return true;
+      }
+
+      // Perish cards just kill you 🤷‍♂️
+      if (card === CardType.Perish) {
+        return true;
+      }
+
+      return false;
     }
   }
 };

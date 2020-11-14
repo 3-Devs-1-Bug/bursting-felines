@@ -182,11 +182,12 @@ export function playCard(gameState, card) {
     gameState.specialPhase === GamePhase.ResolvingPerish
   ) {
     newGameState.specialPhase = GamePhase.InsertingPerishCard;
-  } else {
+  } else if (card === CardType.Skip) {
+    // skip the drawing phase
     newGameState.turnCount++;
   }
 
-  const playerId = getCurrentPlayerId(newGameState);
+  const playerId = getCurrentPlayerId(gameState);
   const playerHand = newGameState.hands[playerId];
   const cardIndex = playerHand.indexOf(card);
   playerHand.splice(cardIndex, 1)[0];
