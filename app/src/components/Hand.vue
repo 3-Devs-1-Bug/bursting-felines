@@ -2,12 +2,22 @@
   <div>
     <ul class="Cards">
       <li v-for="(card, i) in playerCards" :key="i + card">
-        <button
-          :disabled="isCardDisabled(card)"
+        <Card
+          v-if="card === CardType.Resurect"
+          tag="button"
+          text="Recruit a new dev"
           @click="$emit('play-card', card)"
-        >
-          <Card :class="card" :text="card" />
-        </button>
+          :type="card"
+          :disabled="isCardDisabled(card)"
+        />
+        <Card
+          v-else-if="card !== CardType.Perish"
+          tag="button"
+          :disabled="!isUserTurn"
+          :type="card"
+          text="Lorem Ipsum"
+          @click="$emit('play-card', card)"
+        />
       </li>
     </ul>
 
@@ -135,45 +145,5 @@ export default {
   align-items: center;
   justify-content: space-around;
   flex-flow: row wrap;
-}
-
-.Perish {
-  color: $color-red;
-}
-.Resurect {
-  color: $color-green;
-}
-.Skip {
-  color: $color-light-yellow;
-}
-.Attack {
-  color: $color-orange;
-}
-.Loot {
-  color: $color-purple;
-}
-.Deny {
-  color: $color-yellow;
-}
-.Shuffle {
-  color: $color-blue;
-}
-.Peek {
-  color: $color-purple;
-}
-.Combo1 {
-  color: $color-light-blue;
-}
-.Combo2 {
-  color: $color-light-blue;
-}
-.Combo3 {
-  color: $color-light-blue;
-}
-.Combo4 {
-  color: $color-light-blue;
-}
-.Combo5 {
-  color: $color-light-blue;
 }
 </style>
