@@ -2,16 +2,22 @@
   <div class="Opponents">
     <div v-for="player in players" :key="player.playerId">
       {{ player.playerId.substring(0, 8) }}
-      <div :class="['Player', { 'Player--Current': player.isCurrentPlayer }]">
-        {{ player.cardCount }}
-      </div>
+      <Card
+        :text="player.cardCount"
+        :class="{ 'Player--Current': player.isCurrentPlayer }"
+      />
     </div>
   </div>
 </template>
 
 <script>
+import Card from "./Card";
+
 export default {
   name: "Opponents",
+  components: {
+    Card
+  },
   props: {
     players: {
       type: Array,
@@ -30,17 +36,8 @@ export default {
   justify-content: space-around;
   flex-flow: row wrap;
 
-  .Player {
-    border: 0.2em inset $color-primary;
-    display: flex;
-    min-height: 8em;
-    min-width: 5em;
-    justify-content: center;
-    align-items: center;
-    margin: 0.3em;
-    &.Player--Current {
-      border: 0.3em dotted $color-primary;
-    }
+  .Player--Current {
+    border-style: dotted;
   }
 }
 </style>
