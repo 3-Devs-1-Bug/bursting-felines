@@ -185,6 +185,8 @@ export function playCard(gameState, card) {
   } else if (card === CardType.Skip) {
     // skip the drawing phase
     newGameState.turnCount++;
+  } else if (card === CardType.Shuffle) {
+    newGameState.deck = shuffle(gameState.deck);
   }
 
   const playerId = getCurrentPlayerId(gameState);
