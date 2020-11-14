@@ -196,7 +196,7 @@ export function playCard(gameState, card) {
 
   console.log("player " + playerId.substring(0, 8) + " played " + card);
 
-  newGameState.discardPile.push(card);
+  newGameState.discardPile.unshift(card);
 
   return newGameState;
 }
