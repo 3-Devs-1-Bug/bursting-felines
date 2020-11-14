@@ -8,9 +8,12 @@
   <template v-if="gameState">
     <Opponents :players="opponents" />
     <div class="GameBoard">
-      <button :disabled="!isUserTurn" @click="drawCard">
-        <Card :text="cardsInDeck" />
-      </button>
+      <Card
+        tag="button"
+        :disabled="!isUserTurn"
+        :text="cardsInDeck"
+        @click="drawCard"
+      />
       <Card v-if="lastDiscardedCard" :type="lastDiscardedCard" />
       <Card v-else :is-place-holder="true" />
     </div>
