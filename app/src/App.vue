@@ -11,4 +11,8 @@
 @import "styles/fonts";
 @import "styles/variables";
 @import "styles/typography";
+
+body {
+  padding: 1rem;
+}
 </style>
