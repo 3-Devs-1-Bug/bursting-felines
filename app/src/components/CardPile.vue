@@ -1,18 +1,21 @@
 <template>
   <div class="CardPile">
     <Card class="CardPile__Card" is-place-holder />
-    <Card
-      v-for="(card, i) in reversedCards"
-      :key="card"
-      :type="card"
-      :text="card"
-      class="CardPile__Card"
-      :style="{
-        '--card-offset-x': offsets[i].x,
-        '--card-offset-y': offsets[i].y,
-        '--card-offset-angle': offsets[i].angle
-      }"
-    />
+
+    <transition-group name="fade" appear>
+      <Card
+        v-for="(card, i) in reversedCards"
+        :key="card + i"
+        :type="card"
+        :text="card"
+        class="CardPile__Card"
+        :style="{
+          '--card-offset-x': offsets[i].x,
+          '--card-offset-y': offsets[i].y,
+          '--card-offset-angle': offsets[i].angle
+        }"
+      />
+    </transition-group>
   </div>
 </template>
 
@@ -85,5 +88,16 @@ $max-rotate-offset: 10deg;
       translateY(calc(var(--card-offset-y) * #{$max-translate-offset}))
       rotate(calc(var(--card-offset-angle) * #{$max-rotate-offset}));
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(1.4);
 }
 </style>
