@@ -14,8 +14,7 @@
         :text="cardsInDeck"
         @click="drawCard"
       />
-      <Card v-if="lastDiscardedCard" :type="lastDiscardedCard" />
-      <Card v-else :is-place-holder="true" />
+      <CardPile :cards="gameState.discardPile" />
     </div>
     <Information :is-user-turn="isUserTurn" :current-player="currentPlayer" />
   </template>
@@ -50,6 +49,7 @@ import Information from "../components/Information";
 import Button from "../components/Button";
 import Hand from "../components/Hand";
 import Card from "../components/Card";
+import CardPile from "../components/CardPile";
 
 import { getCurrentPlayerId, PlayerStatus, GamePhase } from "../bf-game";
 
@@ -61,7 +61,8 @@ export default {
     Information,
     Button,
     Hand,
-    Card
+    Card,
+    CardPile
   },
 
   data() {
