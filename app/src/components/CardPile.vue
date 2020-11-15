@@ -81,6 +81,8 @@ $max-rotate-offset: 10deg;
 
 .CardPile {
   position: relative;
+  height: 9.375rem;
+  width: 6.25rem;
 
   &__Card {
     position: absolute;
