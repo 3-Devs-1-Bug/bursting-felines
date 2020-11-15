@@ -17,19 +17,30 @@
       <CardPile :cards="gameState.discardPile" />
     </div>
     <Information :is-user-turn="isUserTurn" :current-player="currentPlayer" />
+    <Hand
+      :is-user-turn="isUserTurn"
+      :current-phase="currentPhase"
+      :player-cards="playerCards"
+      @play-card="playCard"
+    />
+    <div v-if="isUserTurn && currentPhase">
+      <PerishPhase
+        v-if="
+          currentPhase === GamePhase.ResolvingPerish ||
+            currentPhase === GamePhase.InsertingPerishCard
+        "
+        :current-phase="currentPhase"
+        :player-count="playerCount"
+        :cards-in-deck="cardsInDeck"
+        :resolve-countdown="resolveCountdown"
+        @insert-perish="insertPerish"
+      />
+    </div>
   </template>
 
-  <Hand
-    :is-user-dead="isUserDead"
-    :is-user-turn="isUserTurn"
-    :game-phase="gamePhase"
-    :player-cards="playerCards"
-    :resolve-countdown="resolveCountdown"
-    :player-count="playerCount"
-    :cards-in-deck="cardsInDeck"
-    @play-card="playCard"
-    @insert-perish="insertPerish"
-  />
+  <p v-if="isUserDead">
+    You died a terrible death...
+  </p>
 
   <hr />
   <code>
@@ -50,6 +61,7 @@ import Button from "../components/Button";
 import Hand from "../components/Hand";
 import Card from "../components/Card";
 import CardPile from "../components/CardPile";
+import PerishPhase from "../components/PerishPhase";
 
 import { getCurrentPlayerId, PlayerStatus, GamePhase } from "../bf-game";
 
@@ -62,13 +74,15 @@ export default {
     Button,
     Hand,
     Card,
-    CardPile
+    CardPile,
+    PerishPhase
   },
 
   data() {
     return {
       resolveCountdown: 0,
-      perishCountdown: null
+      perishCountdown: null,
+      GamePhase
     };
   },
 
@@ -124,7 +138,7 @@ export default {
       }
       return this.gameState.deck.length;
     },
-    gamePhase() {
+    currentPhase() {
       return this.gameState?.specialPhase;
     },
     isPerishPhase() {
