@@ -9,7 +9,7 @@
   </p>
 
   <h2>TODO</h2>
-  <ul>
+  <ul class="todolist">
     <li><del>Main game loop</del></li>
     <li><del>Perish card</del></li>
     <li><del>Resurect card</del></li>
@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss">
-ul {
+.todolist {
   list-style: disc;
   padding-left: 1rem;
 
