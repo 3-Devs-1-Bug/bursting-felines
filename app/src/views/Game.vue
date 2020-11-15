@@ -182,6 +182,10 @@ export default {
 @import "../styles/variables";
 .GameBoard {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+
+  > * {
+    margin: 2rem;
+  }
 }
 </style>

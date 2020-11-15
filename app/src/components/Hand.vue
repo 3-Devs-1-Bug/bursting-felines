@@ -134,7 +134,11 @@ export default {
 .Cards {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   flex-flow: row wrap;
+
+  > * {
+    margin: 0.25rem;
+  }
 }
 </style>

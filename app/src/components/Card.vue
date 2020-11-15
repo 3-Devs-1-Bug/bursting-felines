@@ -89,7 +89,6 @@ $card-colors: (
   flex-direction: column;
   height: 9.375rem;
   width: 6.25rem;
-  margin: 0.3rem;
   padding: 0;
   transition: transform 0.075s ease-in-out;
 
