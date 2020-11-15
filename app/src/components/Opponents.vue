@@ -2,21 +2,21 @@
   <div class="Opponents">
     <div v-for="player in players" :key="player.playerId">
       {{ player.playerId.substring(0, 8) }}
-      <Card
-        :text="player.cardCount"
-        :class="{ 'Player--Current': player.isCurrentPlayer }"
+      <CardFan
+        :card-count="player.cardCount"
+        :is-current-player="player.isCurrentPlayer"
       />
     </div>
   </div>
 </template>
 
 <script>
-import Card from "./Card";
+import CardFan from "./CardFan";
 
 export default {
   name: "Opponents",
   components: {
-    Card
+    CardFan
   },
   props: {
     players: {
@@ -35,6 +35,7 @@ export default {
   align-items: center;
   justify-content: space-around;
   flex-flow: row wrap;
+  margin: 2rem;
 
   .Player--Current {
     border-style: dotted;
