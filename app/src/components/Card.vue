@@ -82,6 +82,7 @@ $card-colors: (
 );
 
 .Card {
+  background-color: $color-background;
   border: 0.2rem solid $color-primary;
   border-radius: 0.4rem;
   color: $color-primary;
@@ -91,6 +92,7 @@ $card-colors: (
   width: 6.25rem;
   padding: 0;
   transition: transform 0.075s ease-in-out;
+  box-shadow: 0 0 0.25rem 0.25rem rgba(0, 0, 0, 0.2);
 
   &__Text {
     flex: 1;
