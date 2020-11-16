@@ -119,7 +119,7 @@ export function createNewGame(playerIds) {
   }
 
   // 6
-  //deck = shuffle(deck);
+  deck = shuffle(deck);
 
   return {
     deck,
