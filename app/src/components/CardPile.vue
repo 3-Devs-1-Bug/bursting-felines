@@ -50,7 +50,8 @@ export default {
     cards(newValue) {
       if (newValue.length > this.offsets.length) {
         // must generate more offsets
-        for (let i = 0; i < newValue.length - this.offsets.length; i++) {
+        const nbItemToGenerate = newValue.length - this.offsets.length;
+        for (let i = 0; i < nbItemToGenerate; i++) {
           this.offsets.push(this.getRandomOffset());
         }
       } else if (newValue.length < this.offsets.length) {
