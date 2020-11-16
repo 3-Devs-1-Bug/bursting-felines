@@ -52,7 +52,10 @@ export default {
     isCardDisabled(card) {
       // every cards are disabled when it's not the players turn (for now)
       if (!this.isUserTurn) {
-        return true;
+        // if player is beeing looted, he can select a card
+        if (this.currentPhase === GamePhase.ResolvingLoot) {
+          return false;
+        } else return true;
       }
 
       // resurect cards can only be played during the ResolvingPerish phase

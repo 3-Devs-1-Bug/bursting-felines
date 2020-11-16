@@ -19,6 +19,8 @@ import { times, shuffle, deepClone } from "./utils";
  *   their turn. This should be incremented by 1. Note that a player taking two
  *   turns because of an attack still counts as 1 "turn" on this counter.
  * @property {string | null} specialPhase Used to represent special game situations that must be resolved.
+ * @property {string} looterId Stores the id of the player that used a loot card
+ * @property {string} lootTargetId Stores the id of the player must give up a card to the looter
  */
 
 /**
@@ -58,21 +60,25 @@ export const GamePhase = {
    * `InsertingPerishCard` the player needs to choose where to re-insert the Perish card
    * they just canceled.
    */
-  InsertingPerishCard: "InsertingPerishCard"
+  InsertingPerishCard: "InsertingPerishCard",
+  /** Player has used a loot card and is picking a target */
+  ChoosingLootTarget: "ChoosingLootTarget",
+  /** Loot target is selecting a card to give away */
+  ResolvingLoot: "ResolvingLoot"
 };
 
 /** Associate each card type with its number of copies in the deck. */
 const DeckConfig = {
   [CardType.Perish]: 4,
   [CardType.Resurect]: 6,
-  [CardType.Skip]: 1,
-  [CardType.Attack]: 1,
-  [CardType.Loot]: 1,
-  [CardType.Deny]: 1,
-  [CardType.Shuffle]: 1,
-  [CardType.Peek]: 1,
-  [CardType.Combo1]: 1,
-  [CardType.Combo2]: 1,
+  [CardType.Skip]: 6,
+  [CardType.Attack]: 0,
+  [CardType.Loot]: 6,
+  [CardType.Deny]: 0,
+  [CardType.Shuffle]: 6,
+  [CardType.Peek]: 0,
+  [CardType.Combo1]: 0,
+  [CardType.Combo2]: 0,
   [CardType.Combo3]: 0,
   [CardType.Combo4]: 0,
   [CardType.Combo5]: 0
@@ -176,8 +182,16 @@ export function drawCard(gameState) {
  */
 export function playCard(gameState, card) {
   const newGameState = deepClone(gameState);
+  const currentPlayerId = getCurrentPlayerId(gameState);
+  let discard = true;
 
-  if (
+  if (gameState.specialPhase === GamePhase.ResolvingLoot) {
+    console.log("Loot resolve");
+    const looterHand = newGameState.hands[newGameState.looterId];
+    looterHand.push(card);
+    // dont send to discard pile, as card has been transfered to the looter
+    discard = false;
+  } else if (
     card === CardType.Resurect &&
     gameState.specialPhase === GamePhase.ResolvingPerish
   ) {
@@ -187,22 +201,55 @@ export function playCard(gameState, card) {
     newGameState.turnCount++;
   } else if (card === CardType.Shuffle) {
     newGameState.deck = shuffle(gameState.deck);
+  } else if (card === CardType.Loot) {
+    // set looter
+    newGameState.looterId = currentPlayerId;
+    const opponentsAlive = getOpponentsAlive(gameState);
+
+    console.log(currentPlayerId + " is looter");
+
+    console.log(opponentsAlive);
+
+    if (opponentsAlive.length > 1) {
+      newGameState.specialPhase = GamePhase.ChoosingLootTarget;
+    } else {
+      // only 1 opponent left, auto select loot victim
+      newGameState.specialPhase = GamePhase.ResolvingLoot;
+      newGameState.lootTargetId = opponentsAlive[0];
+    }
   }
 
-  const playerId = getCurrentPlayerId(gameState);
-  const playerHand = newGameState.hands[playerId];
+  const playerHand = newGameState.hands[currentPlayerId];
   const cardIndex = playerHand.indexOf(card);
   playerHand.splice(cardIndex, 1)[0];
 
-  console.log("player " + playerId.substring(0, 8) + " played " + card);
+  console.log("player " + currentPlayerId.substring(0, 8) + " played " + card);
 
-  newGameState.discardPile.unshift(card);
+  if (discard) newGameState.discardPile.unshift(card);
+
+  console.log(newGameState.specialPhase);
 
   return newGameState;
 }
 
 export function getCurrentPlayerId(gameState) {
   return gameState.players[gameState.turnCount % gameState.players.length];
+}
+
+export function getOpponentsAlive(gameState) {
+  const currentPlayerId = getCurrentPlayerId(gameState);
+  console.log("currentPlayerId", currentPlayerId);
+  console.log(gameState.statuses);
+  const opponentsAlive = [];
+  for (var playerId in gameState.statuses) {
+    if (
+      playerId === currentPlayerId ||
+      gameState.statuses[playerId] === PlayerStatus.Dead
+    ) {
+      continue;
+    } else opponentsAlive.push(playerId);
+  }
+  return opponentsAlive;
 }
 
 /**
@@ -245,5 +292,13 @@ export function perish(gameState) {
   newGameState.specialPhase = null;
   newGameState.turnCount++;
 
+  return newGameState;
+}
+
+export function setLootTarget(gameState, targetId) {
+  console.log(targetId + " has become the loot target");
+  const newGameState = deepClone(gameState);
+  newGameState.lootTargetId = targetId;
+  newGameState.specialPhase = GamePhase.ResolvingLoot;
   return newGameState;
 }

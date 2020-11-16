@@ -35,6 +35,11 @@
         :resolve-countdown="resolveCountdown"
         @insert-perish="insertPerish"
       />
+      <LootPhase
+        v-if="currentPhase === GamePhase.ChoosingLootTarget"
+        :opponents="opponentsAlive"
+        @set-loot-target="setLootTarget"
+      />
     </div>
   </template>
 
@@ -62,8 +67,14 @@ import Hand from "../components/Hand";
 import Card from "../components/Card";
 import CardPile from "../components/CardPile";
 import PerishPhase from "../components/PerishPhase";
+import LootPhase from "../components/LootPhase";
 
-import { getCurrentPlayerId, PlayerStatus, GamePhase } from "../bf-game";
+import {
+  getCurrentPlayerId,
+  getOpponentsAlive,
+  PlayerStatus,
+  GamePhase
+} from "../bf-game";
 
 export default {
   name: "GameView",
@@ -75,7 +86,8 @@ export default {
     Hand,
     Card,
     CardPile,
-    PerishPhase
+    PerishPhase,
+    LootPhase
   },
 
   data() {
@@ -152,6 +164,12 @@ export default {
     },
     lastDiscardedCard() {
       return this.gameState?.discardPile[0];
+    },
+    opponentsAlive() {
+      if (!this.gameState) {
+        return [];
+      }
+      return getOpponentsAlive(this.gameState);
     }
   },
 
@@ -187,7 +205,8 @@ export default {
       "drawCard",
       "insertPerish",
       "perish",
-      "playCard"
+      "playCard",
+      "setLootTarget"
     ])
   }
 };
