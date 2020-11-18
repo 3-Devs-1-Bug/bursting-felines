@@ -180,15 +180,29 @@ export function drawCard(gameState) {
  * @param {CardType} card The card the player chose to play
  * @returns {GameState} New state of the game.
  */
-export function playCard(gameState, card) {
+export function playCard(gameState, userId, card) {
   const newGameState = deepClone(gameState);
-  const currentPlayerId = getCurrentPlayerId(gameState);
   let discard = true;
 
+  // remove card from player's hand
+  // if ResolvingLoot, currentPlayer is not the one who played the card...
+  const playerHand = newGameState.hands[userId];
+  const cardIndex = playerHand.indexOf(card);
+  playerHand.splice(cardIndex, 1)[0];
+
+  console.log(userId + " played " + card);
+
   if (gameState.specialPhase === GamePhase.ResolvingLoot) {
-    console.log("Loot resolve");
+    console.log(
+      `${newGameState.lootTargetId} gave ${newGameState.looterId} a ${card} card`
+    );
     const looterHand = newGameState.hands[newGameState.looterId];
     looterHand.push(card);
+
+    newGameState.specialPhase = null;
+    newGameState.lootTargetId = null;
+    newGameState.looterId = null;
+
     // dont send to discard pile, as card has been transfered to the looter
     discard = false;
   } else if (
@@ -203,31 +217,25 @@ export function playCard(gameState, card) {
     newGameState.deck = shuffle(gameState.deck);
   } else if (card === CardType.Loot) {
     // set looter
-    newGameState.looterId = currentPlayerId;
+    newGameState.looterId = userId;
     const opponentsAlive = getOpponentsAlive(gameState);
 
-    console.log(currentPlayerId + " is looter");
+    console.log(userId + " is looter");
 
-    console.log(opponentsAlive);
+    newGameState.specialPhase = GamePhase.ChoosingLootTarget;
 
-    if (opponentsAlive.length > 1) {
-      newGameState.specialPhase = GamePhase.ChoosingLootTarget;
-    } else {
-      // only 1 opponent left, auto select loot victim
+    if (opponentsAlive.length === 1) {
+      console.log("Only 1 opponent alive, auto select loot victim");
       newGameState.specialPhase = GamePhase.ResolvingLoot;
       newGameState.lootTargetId = opponentsAlive[0];
+    } else {
+      newGameState.specialPhase = GamePhase.ChoosingLootTarget;
     }
   }
 
-  const playerHand = newGameState.hands[currentPlayerId];
-  const cardIndex = playerHand.indexOf(card);
-  playerHand.splice(cardIndex, 1)[0];
-
-  console.log("player " + currentPlayerId.substring(0, 8) + " played " + card);
-
   if (discard) newGameState.discardPile.unshift(card);
 
-  console.log(newGameState.specialPhase);
+  console.log("New phase " + newGameState.specialPhase);
 
   return newGameState;
 }
@@ -238,8 +246,6 @@ export function getCurrentPlayerId(gameState) {
 
 export function getOpponentsAlive(gameState) {
   const currentPlayerId = getCurrentPlayerId(gameState);
-  console.log("currentPlayerId", currentPlayerId);
-  console.log(gameState.statuses);
   const opponentsAlive = [];
   for (var playerId in gameState.statuses) {
     if (

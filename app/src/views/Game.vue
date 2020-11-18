@@ -16,11 +16,17 @@
       />
       <CardPile :cards="gameState.discardPile" />
     </div>
-    <Information :is-user-turn="isUserTurn" :current-player="currentPlayer" />
+    <Information
+      :is-user-turn="isUserTurn"
+      :user-id="userId"
+      :game-state="gameState"
+      :current-player="currentPlayer"
+    />
     <Hand
       :is-user-turn="isUserTurn"
       :current-phase="currentPhase"
       :player-cards="playerCards"
+      :user-id="userId"
       @play-card="playCard"
     />
     <div v-if="isUserTurn && currentPhase">

@@ -7,7 +7,7 @@
           :disabled="isCardDisabled(card)"
           :type="card"
           text="Lorem Ipsum"
-          @click="$emit('play-card', card)"
+          @click="$emit('play-card', { userId, card })"
         />
       </li>
     </ul>
@@ -39,6 +39,10 @@ export default {
     cardsInDeck: {
       type: Number,
       default: 0
+    },
+    userId: {
+      type: String,
+      required: true
     }
   },
   emits: ["play-card"],
