@@ -6,8 +6,8 @@
       <Card
         v-for="(card, i) in reversedCards"
         :key="card + i"
-        :type="card"
-        :text="card"
+        :type="!faceDown && card"
+        :text="faceDown ? '' : card"
         class="CardPile__Card"
         :style="{
           '--card-offset-x': offsets[i].x,
@@ -32,11 +32,13 @@ export default {
       required: true,
       validator: value =>
         value.every(item => Object.values(CardType).includes(item))
-    }
+    },
+    faceDown: Boolean,
+    isMessy: Boolean
   },
   data() {
     return {
-      offsets: this.cards.map(this.getRandomOffset)
+      offsets: this.cards.map((card, index) => this.getOffset(index))
     };
   },
   computed: {
@@ -52,7 +54,7 @@ export default {
         // must generate more offsets
         const nbItemToGenerate = newValue.length - this.offsets.length;
         for (let i = 0; i < nbItemToGenerate; i++) {
-          this.offsets.push(this.getRandomOffset());
+          this.offsets.push(this.getOffset(i));
         }
       } else if (newValue.length < this.offsets.length) {
         // must remove some offsets
@@ -65,12 +67,20 @@ export default {
     }
   },
   methods: {
-    getRandomOffset() {
-      return {
-        x: -1 + Math.random() * 2,
-        y: -1 + Math.random() * 2,
-        angle: -1 + Math.random() * 2
-      };
+    getOffset(index) {
+      if (this.isMessy) {
+        return {
+          x: -1 + Math.random() * 2,
+          y: -1 + Math.random() * 2,
+          angle: -1 + Math.random() * 2
+        };
+      } else {
+        return {
+          x: 1 - index * 0.15,
+          y: 1 - index * 0.15,
+          angle: 0
+        };
+      }
     }
   }
 };

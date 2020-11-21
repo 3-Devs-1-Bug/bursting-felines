@@ -8,13 +8,10 @@
   <template v-if="gameState">
     <Opponents :players="opponents" />
     <div class="GameBoard">
-      <Card
-        tag="button"
-        :disabled="!isUserTurn"
-        :text="cardsInDeck"
-        @click="drawCard"
-      />
-      <CardPile :cards="gameState.discardPile" />
+      <button :disabled="!isUserTurn" @click="drawCard">
+        <CardPile :cards="gameState.deck" :face-down="true" />
+      </button>
+      <CardPile :cards="gameState.discardPile" :is-messy="true" />
     </div>
     <Information
       :is-user-turn="isUserTurn"
@@ -70,7 +67,6 @@ import Opponents from "../components/Opponents";
 import Information from "../components/Information";
 import Button from "../components/Button";
 import Hand from "../components/Hand";
-import Card from "../components/Card";
 import CardPile from "../components/CardPile";
 import PerishPhase from "../components/PerishPhase";
 import LootPhase from "../components/LootPhase";
@@ -90,7 +86,6 @@ export default {
     Information,
     Button,
     Hand,
-    Card,
     CardPile,
     PerishPhase,
     LootPhase
