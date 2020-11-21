@@ -7,7 +7,7 @@
           :disabled="isCardDisabled(card)"
           :type="card"
           text="Lorem Ipsum"
-          @click="$emit('play-card', card)"
+          @click="$emit('play-card', { userId, card })"
         />
       </li>
     </ul>
@@ -39,6 +39,10 @@ export default {
     cardsInDeck: {
       type: Number,
       default: 0
+    },
+    userId: {
+      type: String,
+      required: true
     }
   },
   emits: ["play-card"],
@@ -50,9 +54,11 @@ export default {
   },
   methods: {
     isCardDisabled(card) {
-      // every cards are disabled when it's not the players turn (for now)
       if (!this.isUserTurn) {
-        return true;
+        // if player is beeing looted, he can select a card
+        if (this.currentPhase === GamePhase.ResolvingLoot) {
+          return false;
+        } else return true;
       }
 
       // resurect cards can only be played during the ResolvingPerish phase
