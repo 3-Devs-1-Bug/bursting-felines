@@ -188,7 +188,7 @@ export function playCard(gameState, userId, card) {
   // if ResolvingLoot, currentPlayer is not the one who played the card...
   const playerHand = newGameState.hands[userId];
   const cardIndex = playerHand.indexOf(card);
-  playerHand.splice(cardIndex, 1)[0];
+  playerHand.splice(cardIndex, 1);
 
   console.log(userId + " played " + card);
 
