@@ -233,7 +233,8 @@ export function playCard(gameState, userId, card) {
     }
   }
 
-  if (discard) newGameState.discardPile.unshift(card);
+  // dont send to discard pile, as card has been transfered to the looter
+  if (gameState.specialPhase === GamePhase.ResolvingLoot) newGameState.discardPile.unshift(card);
 
   console.log("New phase " + newGameState.specialPhase);
 
