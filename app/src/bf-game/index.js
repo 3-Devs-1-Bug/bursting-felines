@@ -246,16 +246,11 @@ export function getCurrentPlayerId(gameState) {
 
 export function getOpponentsAlive(gameState) {
   const currentPlayerId = getCurrentPlayerId(gameState);
-  const opponentsAlive = [];
-  for (var playerId in gameState.statuses) {
-    if (
-      playerId === currentPlayerId ||
-      gameState.statuses[playerId] === PlayerStatus.Dead
-    ) {
-      continue;
-    } else opponentsAlive.push(playerId);
-  }
-  return opponentsAlive;
+  return gameState.players.filter(
+    playerId =>
+      playerId !== currentPlayerId &&
+      gameState.statuses[playerId] !== PlayerStatus.Dead
+  );
 }
 
 /**
