@@ -54,7 +54,6 @@ export default {
   },
   methods: {
     isCardDisabled(card) {
-      // every cards are disabled when it's not the players turn (for now)
       if (!this.isUserTurn) {
         // if player is beeing looted, he can select a card
         if (this.currentPhase === GamePhase.ResolvingLoot) {

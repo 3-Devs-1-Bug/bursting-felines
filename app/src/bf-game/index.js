@@ -182,7 +182,6 @@ export function drawCard(gameState) {
  */
 export function playCard(gameState, userId, card) {
   const newGameState = deepClone(gameState);
-  let discard = true;
 
   // remove card from player's hand
   // if ResolvingLoot, currentPlayer is not the one who played the card...
@@ -202,9 +201,6 @@ export function playCard(gameState, userId, card) {
     newGameState.specialPhase = null;
     newGameState.lootTargetId = null;
     newGameState.looterId = null;
-
-    // dont send to discard pile, as card has been transfered to the looter
-    discard = false;
   } else if (
     card === CardType.Resurect &&
     gameState.specialPhase === GamePhase.ResolvingPerish
@@ -234,7 +230,8 @@ export function playCard(gameState, userId, card) {
   }
 
   // dont send to discard pile, as card has been transfered to the looter
-  if (gameState.specialPhase === GamePhase.ResolvingLoot) newGameState.discardPile.unshift(card);
+  if (gameState.specialPhase === GamePhase.ResolvingLoot)
+    newGameState.discardPile.unshift(card);
 
   console.log("New phase " + newGameState.specialPhase);
 
