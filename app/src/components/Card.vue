@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { CardType } from "../bf-game";
+import { CardType } from "../bf-game/types";
 
 export default {
   name: "Card",
@@ -28,7 +28,7 @@ export default {
       default: null
     },
     type: {
-      type: String,
+      type: [String, undefined],
       required: false,
       default: null,
       validator: value => Object.values(CardType).includes(value)

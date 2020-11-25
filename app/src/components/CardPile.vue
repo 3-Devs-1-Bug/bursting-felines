@@ -2,25 +2,25 @@
   <div class="CardPile">
     <Card class="CardPile__Card" is-place-holder />
 
-    <transition-group name="fade" appear>
-      <Card
-        v-for="(card, i) in reversedCards"
-        :key="card + i"
-        :type="!faceDown && card"
-        :text="faceDown ? '' : card"
-        class="CardPile__Card"
-        :style="{
-          '--card-offset-x': offsets[i].x,
-          '--card-offset-y': offsets[i].y,
-          '--card-offset-angle': offsets[i].angle
-        }"
-      />
-    </transition-group>
+    <!-- <transition-group name="fade" appear> -->
+    <Card
+      v-for="(card, i) in reversedCards"
+      :key="card.type + i"
+      :type="faceDown ? undefined : card.type"
+      :text="faceDown ? '' : card.text"
+      class="CardPile__Card"
+      :style="{
+        '--card-offset-x': offsets[i].x,
+        '--card-offset-y': offsets[i].y,
+        '--card-offset-angle': offsets[i].angle
+      }"
+    />
+    <!-- </transition-group> -->
   </div>
 </template>
 
 <script>
-import { CardType } from "../bf-game";
+import { CardType } from "../bf-game/types";
 import Card from "./Card";
 
 export default {
@@ -29,15 +29,14 @@ export default {
   props: {
     cards: {
       type: Array,
-      required: true,
-      validator: value =>
-        value.every(item => Object.values(CardType).includes(item))
+      required: true
     },
     faceDown: Boolean,
     isMessy: Boolean
   },
   data() {
     return {
+      CardType,
       offsets: this.cards.map((card, index) => this.getOffset(index))
     };
   },

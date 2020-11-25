@@ -5,8 +5,8 @@
         <Card
           tag="button"
           :disabled="isCardDisabled(card)"
-          :type="card"
-          text="Lorem Ipsum"
+          :type="card.type"
+          :text="card.text"
           @click="$emit('play-card', { userId, card })"
         />
       </li>
@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import { CardType, GamePhase } from "../bf-game";
+import { GamePhase } from "../bf-game";
+import { CardType } from "../bf-game/types";
 import Card from "./Card";
 
 export default {
@@ -32,9 +33,7 @@ export default {
     },
     playerCards: {
       type: Array,
-      required: true,
-      validator: value =>
-        value.every(item => Object.values(CardType).includes(item))
+      required: true
     },
     cardsInDeck: {
       type: Number,
@@ -63,14 +62,14 @@ export default {
 
       // resurect cards can only be played during the ResolvingPerish phase
       if (
-        card === CardType.Resurect &&
+        card.type === CardType.Resurect &&
         this.currentPhase !== GamePhase.ResolvingPerish
       ) {
         return true;
       }
 
       // Perish cards just kill you 🤷‍♂️
-      if (card === CardType.Perish) {
+      if (card.type === CardType.Perish) {
         return true;
       }
 
