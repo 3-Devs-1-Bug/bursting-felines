@@ -37,9 +37,17 @@ export default {
           return `Waiting for ${target} to give you a card`;
         }
       }
+
       const shortName = this.currentPlayer.substring(0, 8);
-      if (this.isUserTurn) return `It's your turn`;
-      else return `Waiting for ${shortName} to play`;
+      if (this.isUserTurn) {
+        let message = `It's your turn`;
+        const { attackCards } = this.gameState;
+        if (attackCards > 0) {
+          const attacks = attackCards > 1 ? ` ${attackCards} times` : "";
+          message += ` (you have been attacked${attacks})`;
+        }
+        return message;
+      } else return `Waiting for ${shortName} to play`;
     }
   }
 };

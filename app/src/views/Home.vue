@@ -17,11 +17,11 @@
     <ul class="todolist">
       <li><del>Main game loop</del></li>
       <li><del>Perish card</del></li>
-      <li><del>Resurect card</del></li>
       <li><del>Skip card</del></li>
+      <li><del>Resurect card</del></li>
       <li><del>Shuffle card</del></li>
       <li>Deny card</li>
-      <li>Attack card</li>
+      <li><del>Attack card</del></li>
       <li><del>Loot card</del></li>
       <li>Peek card</li>
       <li>Combo cards</li>

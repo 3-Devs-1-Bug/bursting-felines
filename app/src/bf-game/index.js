@@ -21,6 +21,7 @@ import { times, shuffle, deepClone } from "./utils";
  * @property {string | null} specialPhase Used to represent special game situations that must be resolved.
  * @property {string} looterId Stores the id of the player that used a loot card
  * @property {string} lootTargetId Stores the id of the player must give up a card to the looter
+ * @property {number} attackCards Number of attack cards played
  */
 
 /**
@@ -72,10 +73,10 @@ const DeckConfig = {
   [CardType.Perish]: 4,
   [CardType.Resurect]: 6,
   [CardType.Skip]: 6,
-  [CardType.Attack]: 0,
-  [CardType.Loot]: 6,
+  [CardType.Attack]: 6,
+  [CardType.Loot]: 3,
   [CardType.Deny]: 0,
-  [CardType.Shuffle]: 6,
+  [CardType.Shuffle]: 3,
   [CardType.Peek]: 0,
   [CardType.Combo1]: 0,
   [CardType.Combo2]: 0,
@@ -134,7 +135,8 @@ export function createNewGame(playerIds) {
     hands: playerHands,
     statuses,
     turnCount: 0,
-    specialPhase: null
+    specialPhase: null,
+    attackCards: 0
   };
 }
 
@@ -165,7 +167,12 @@ export function drawCard(gameState) {
       newGameState.specialPhase = GamePhase.ResolvingPerish;
     }
   } else {
-    newGameState.turnCount++;
+    // if you were under attack, it's still your turn
+    if (newGameState.attackCards > 0) {
+      newGameState.attackCards--;
+    } else {
+      newGameState.turnCount++;
+    }
   }
 
   playerHand.push(card);
@@ -207,8 +214,12 @@ export function playCard(gameState, userId, card) {
   ) {
     newGameState.specialPhase = GamePhase.InsertingPerishCard;
   } else if (card === CardType.Skip) {
-    // skip the drawing phase
-    newGameState.turnCount++;
+    if (newGameState.attackCards > 0) {
+      newGameState.attackCards--;
+    } else {
+      // skip the drawing phase
+      newGameState.turnCount++;
+    }
   } else if (card === CardType.Shuffle) {
     newGameState.deck = shuffle(gameState.deck);
   } else if (card === CardType.Loot) {
@@ -227,6 +238,10 @@ export function playCard(gameState, userId, card) {
     } else {
       newGameState.specialPhase = GamePhase.ChoosingLootTarget;
     }
+  } else if (card === CardType.Attack) {
+    newGameState.attackCards++;
+    // skip the drawing phase
+    newGameState.turnCount++;
   }
 
   // dont send to discard pile, as card has been transfered to the looter
@@ -273,7 +288,12 @@ export function insertPerish(gameState, perishNewPosition) {
   newGameState.deck.splice(perishNewPosition, 0, perishCard);
 
   newGameState.specialPhase = null;
-  newGameState.turnCount++;
+
+  if (newGameState.attackCards > 0) {
+    newGameState.attackCards--;
+  } else {
+    newGameState.turnCount++;
+  }
 
   return newGameState;
 }
