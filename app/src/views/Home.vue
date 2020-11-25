@@ -22,7 +22,7 @@
       <li><del>Shuffle card</del></li>
       <li>Deny card</li>
       <li>Attack card</li>
-      <li>Loot card</li>
+      <li><del>Loot card</del></li>
       <li>Peek card</li>
       <li>Combo cards</li>
       <li>Handle the endgame</li>
