@@ -8,6 +8,7 @@
 import { shuffle, deepClone } from "./utils";
 import { defaultDeck } from "./cards";
 import { CardType } from "./types";
+import { v4 as uuidv4 } from "uuid";
 /**
  * Represent the state of a game of Bursting Felines.
  * @typedef {Object} GameState
@@ -68,6 +69,7 @@ export function createNewGame(playerIds) {
   for (let cardType in defaultDeck) {
     defaultDeck[cardType].map(card =>
       cards.push({
+        id: uuidv4(),
         type: cardType,
         text: card.text
       })
@@ -137,14 +139,14 @@ export function drawCard(gameState) {
   newGameState.deck = newDeck;
 
   if (card.type === CardType.Perish) {
-    // kill of player instantly he has no Resurect
-
-    if (playerHand.indexOf(this.CardType.Resurect) === -1) {
-      console.log("Player had no Resurect, terminate");
-      return perish(gameState);
-    } else {
+    const hasResurect =
+      playerHand.map(card => card.type).indexOf(CardType.Resurect) > -1;
+    if (hasResurect) {
       console.log("Player has a resurect to play");
       newGameState.specialPhase = GamePhase.ResolvingPerish;
+    } else {
+      console.log("Player had no Resurect, terminate");
+      return perish(gameState);
     }
   } else {
     // if you were under attack, it's still your turn
@@ -173,7 +175,7 @@ export function playCard(gameState, userId, card) {
   // remove card from player's hand
   // if ResolvingLoot, currentPlayer is not the one who played the card...
   const playerHand = newGameState.hands[userId];
-  const cardIndex = playerHand.indexOf(card);
+  const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
   playerHand.splice(cardIndex, 1);
 
   console.log(userId + " played " + card.type);
