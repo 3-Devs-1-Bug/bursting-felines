@@ -2,20 +2,20 @@
   <div class="CardPile">
     <Card class="CardPile__Card" is-place-holder />
 
-    <!-- <transition-group name="fade" appear> -->
-    <Card
-      v-for="(card, i) in reversedCards"
-      :key="card.type + i"
-      :type="faceDown ? undefined : card.type"
-      :text="faceDown ? '' : card.text"
-      class="CardPile__Card"
-      :style="{
-        '--card-offset-x': offsets[i].x,
-        '--card-offset-y': offsets[i].y,
-        '--card-offset-angle': offsets[i].angle
-      }"
-    />
-    <!-- </transition-group> -->
+    <transition-group name="fade" appear>
+      <Card
+        v-for="(card, i) in reversedCards"
+        :key="card.type + i"
+        :type="faceDown ? undefined : card.type"
+        :text="faceDown ? '' : card.text"
+        class="CardPile__Card"
+        :style="{
+          '--card-offset-x': offsets[i].x,
+          '--card-offset-y': offsets[i].y,
+          '--card-offset-angle': offsets[i].angle
+        }"
+      />
+    </transition-group>
   </div>
 </template>
 
@@ -57,10 +57,10 @@ export default {
         }
       } else if (newValue.length < this.offsets.length) {
         // must remove some offsets
-        const nbItemToDelele = this.offsets.length - newValue.length;
+        const nbItemToDelete = this.offsets.length - newValue.length;
         this.offsets.splice(
-          this.offsets.length - nbItemToDelele,
-          nbItemToDelele
+          this.offsets.length - nbItemToDelete,
+          nbItemToDelete
         );
       }
     }

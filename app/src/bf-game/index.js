@@ -6,7 +6,7 @@
  */
 
 import { shuffle, deepClone } from "./utils";
-import { cards } from "./cards";
+import { defaultDeck } from "./cards";
 import { CardType } from "./types";
 /**
  * Represent the state of a game of Bursting Felines.
@@ -64,6 +64,16 @@ export const GamePhase = {
  * @returns {GameState}
  */
 export function createNewGame(playerIds) {
+  let cards = [];
+  for (let cardType in defaultDeck) {
+    defaultDeck[cardType].map(card =>
+      cards.push({
+        type: cardType,
+        text: card.text
+      })
+    );
+  }
+
   // Remove all the Perish and Resurrect cards from the deck
   const baseDeck = [].concat(
     cards.filter(
