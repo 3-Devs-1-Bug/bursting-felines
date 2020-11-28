@@ -6,7 +6,7 @@
   <div>
     <h1>About</h1>
     <p>
-      Bursting Felines is a clone of a game called "Exploging Kittens". The
+      Bursting Felines is a clone of a game called "Exploding Kittens". The
       source code is available on its
       <a href="https://github.com/3-Devs-1-Bug/bursting-felines">
         Github Repository</a

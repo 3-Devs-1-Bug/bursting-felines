@@ -5,9 +5,9 @@
     <transition-group name="fade" appear>
       <Card
         v-for="(card, i) in reversedCards"
-        :key="card + i"
-        :type="!faceDown && card"
-        :text="faceDown ? '' : card"
+        :key="card.type + i"
+        :type="faceDown ? undefined : card.type"
+        :text="faceDown ? '' : card.text"
         class="CardPile__Card"
         :style="{
           '--card-offset-x': offsets[i].x,
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { CardType } from "../bf-game";
+import { CardType } from "../bf-game/types";
 import Card from "./Card";
 
 export default {
@@ -29,15 +29,14 @@ export default {
   props: {
     cards: {
       type: Array,
-      required: true,
-      validator: value =>
-        value.every(item => Object.values(CardType).includes(item))
+      required: true
     },
     faceDown: Boolean,
     isMessy: Boolean
   },
   data() {
     return {
+      CardType,
       offsets: this.cards.map((card, index) => this.getOffset(index))
     };
   },
@@ -58,10 +57,10 @@ export default {
         }
       } else if (newValue.length < this.offsets.length) {
         // must remove some offsets
-        const nbItemToDelele = this.offsets.length - newValue.length;
+        const nbItemToDelete = this.offsets.length - newValue.length;
         this.offsets.splice(
-          this.offsets.length - nbItemToDelele,
-          nbItemToDelele
+          this.offsets.length - nbItemToDelete,
+          nbItemToDelete
         );
       }
     }

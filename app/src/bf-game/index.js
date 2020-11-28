@@ -5,8 +5,10 @@
  * state.
  */
 
-import { times, shuffle, deepClone } from "./utils";
-
+import { shuffle, deepClone } from "./utils";
+import { defaultDeck } from "./cards";
+import { CardType } from "./types";
+import { v4 as uuidv4 } from "uuid";
 /**
  * Represent the state of a game of Bursting Felines.
  * @typedef {Object} GameState
@@ -25,24 +27,11 @@ import { times, shuffle, deepClone } from "./utils";
  */
 
 /**
- * Types of card available in the game.
- * @see {@link https://github.com/3-Devs-1-Bug/bursting-felines/blob/main/README.md#card-list} for mor informations on the different cards.
+ * Card
+ * @typedef {Object} Card
+ * @property {string} type
+ * @property {string} text
  */
-export const CardType = {
-  Perish: "Perish",
-  Resurect: "Resurect",
-  Skip: "Skip",
-  Attack: "Attack",
-  Loot: "Loot",
-  Deny: "Deny",
-  Shuffle: "Shuffle",
-  Peek: "Peek",
-  Combo1: "Combo1",
-  Combo2: "Combo2",
-  Combo3: "Combo3",
-  Combo4: "Combo4",
-  Combo5: "Combo5"
-};
 
 export const PlayerStatus = {
   Alive: "Alive",
@@ -68,23 +57,6 @@ export const GamePhase = {
   ResolvingLoot: "ResolvingLoot"
 };
 
-/** Associate each card type with its number of copies in the deck. */
-const DeckConfig = {
-  [CardType.Perish]: 4,
-  [CardType.Resurect]: 6,
-  [CardType.Skip]: 6,
-  [CardType.Attack]: 6,
-  [CardType.Loot]: 3,
-  [CardType.Deny]: 0,
-  [CardType.Shuffle]: 3,
-  [CardType.Peek]: 0,
-  [CardType.Combo1]: 0,
-  [CardType.Combo2]: 0,
-  [CardType.Combo3]: 0,
-  [CardType.Combo4]: 0,
-  [CardType.Combo5]: 0
-};
-
 /**
  * Create a new game state object following the instructions
  * at {@link https://github.com/3-Devs-1-Bug/bursting-felines#setup}
@@ -93,39 +65,49 @@ const DeckConfig = {
  * @returns {GameState}
  */
 export function createNewGame(playerIds) {
-  // 1
+  let cards = [];
+  for (let cardType in defaultDeck) {
+    defaultDeck[cardType].map(card =>
+      cards.push({
+        id: uuidv4(),
+        type: cardType,
+        text: card.text
+      })
+    );
+  }
+
+  // Remove all the Perish and Resurrect cards from the deck
   const baseDeck = [].concat(
-    ...Object.keys(DeckConfig)
-      .filter(type => type !== CardType.Perish && type !== CardType.Resurect)
-      .map(type => times(DeckConfig[type], type))
+    cards.filter(
+      card => card.type !== CardType.Perish && card.type !== CardType.Resurect
+    )
   );
 
-  // 2 & 3
   let deck = shuffle(baseDeck);
   const playerHands = {};
   const statuses = {};
+  // Deal 1 Resurrect card to each player so that everyone has a hand of 5 cards total
+  let resurectCards = cards.filter(card => card.type === CardType.Resurect);
   playerIds.forEach(playerId => {
     playerHands[playerId] = [
       deck.pop(),
       deck.pop(),
       deck.pop(),
       deck.pop(),
-      CardType.Resurect
+      resurectCards.pop()
     ];
     statuses[playerId] = PlayerStatus.Alive;
   });
 
-  // 4
+  // Insert Perish cards: one fewer than the number of people playing
+  let perishCards = cards.filter(card => card.type === CardType.Perish);
   for (let i = 0; i < playerIds.length - 1; i++) {
-    deck.push(CardType.Perish);
+    deck.push(perishCards.pop());
   }
 
-  // 5
-  for (let i = 0; i < DeckConfig[CardType.Resurect] - playerIds.length; i++) {
-    deck.push(CardType.Resurect);
-  }
+  // Insert the extra Resurrect cards back in the deck
+  deck.push(...resurectCards);
 
-  // 6
   deck = shuffle(deck);
 
   return {
@@ -156,15 +138,15 @@ export function drawCard(gameState) {
 
   newGameState.deck = newDeck;
 
-  if (card === CardType.Perish) {
-    // kill of player instantly he has no Resurect
-
-    if (playerHand.indexOf(this.CardType.Resurect) === -1) {
-      console.log("Player had no Resurect, terminate");
-      return perish(gameState);
-    } else {
+  if (card.type === CardType.Perish) {
+    const hasResurect =
+      playerHand.map(card => card.type).indexOf(CardType.Resurect) > -1;
+    if (hasResurect) {
       console.log("Player has a resurect to play");
       newGameState.specialPhase = GamePhase.ResolvingPerish;
+    } else {
+      console.log("Player had no Resurect, terminate");
+      return perish(gameState);
     }
   } else {
     // if you were under attack, it's still your turn
@@ -184,7 +166,7 @@ export function drawCard(gameState) {
  * Calculate the new state of the game when a player chooses a card to play.
  *
  * @param {GameState} gameState Current state of the game
- * @param {CardType} card The card the player chose to play
+ * @param {Card} card The card the player chose to play
  * @returns {GameState} New state of the game.
  */
 export function playCard(gameState, userId, card) {
@@ -193,14 +175,14 @@ export function playCard(gameState, userId, card) {
   // remove card from player's hand
   // if ResolvingLoot, currentPlayer is not the one who played the card...
   const playerHand = newGameState.hands[userId];
-  const cardIndex = playerHand.indexOf(card);
+  const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
   playerHand.splice(cardIndex, 1);
 
-  console.log(userId + " played " + card);
+  console.log(userId + " played " + card.type);
 
   if (gameState.specialPhase === GamePhase.ResolvingLoot) {
     console.log(
-      `${newGameState.lootTargetId} gave ${newGameState.looterId} a ${card} card`
+      `${newGameState.lootTargetId} gave ${newGameState.looterId} a ${card.type} card`
     );
     const looterHand = newGameState.hands[newGameState.looterId];
     looterHand.push(card);
@@ -209,20 +191,20 @@ export function playCard(gameState, userId, card) {
     newGameState.lootTargetId = null;
     newGameState.looterId = null;
   } else if (
-    card === CardType.Resurect &&
+    card.type === CardType.Resurect &&
     gameState.specialPhase === GamePhase.ResolvingPerish
   ) {
     newGameState.specialPhase = GamePhase.InsertingPerishCard;
-  } else if (card === CardType.Skip) {
+  } else if (card.type === CardType.Skip) {
     if (newGameState.attackCards > 0) {
       newGameState.attackCards--;
     } else {
       // skip the drawing phase
       newGameState.turnCount++;
     }
-  } else if (card === CardType.Shuffle) {
+  } else if (card.type === CardType.Shuffle) {
     newGameState.deck = shuffle(gameState.deck);
-  } else if (card === CardType.Loot) {
+  } else if (card.type === CardType.Loot) {
     // set looter
     newGameState.looterId = userId;
     const opponentsAlive = getOpponentsAlive(gameState);
@@ -238,7 +220,7 @@ export function playCard(gameState, userId, card) {
     } else {
       newGameState.specialPhase = GamePhase.ChoosingLootTarget;
     }
-  } else if (card === CardType.Attack) {
+  } else if (card.type === CardType.Attack) {
     newGameState.attackCards++;
     // skip the drawing phase
     newGameState.turnCount++;
@@ -283,7 +265,9 @@ export function insertPerish(gameState, perishNewPosition) {
   const playerHand = newGameState.hands[currentPlayerId];
 
   // Perish card is re-inserted into deck at an index chosen by the player
-  const perishCardIndex = playerHand.indexOf(CardType.Perish);
+  const perishCardIndex = playerHand
+    .map(card => card.type)
+    .indexOf(CardType.Perish);
   const perishCard = playerHand.splice(perishCardIndex, 1)[0];
   newGameState.deck.splice(perishNewPosition, 0, perishCard);
 
