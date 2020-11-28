@@ -265,7 +265,6 @@ export function insertPerish(gameState, perishNewPosition) {
   const playerHand = newGameState.hands[currentPlayerId];
 
   // Perish card is re-inserted into deck at an index chosen by the player
-  console.log("does this work ??");
   const perishCardIndex = playerHand
     .map(card => card.type)
     .indexOf(CardType.Perish);
