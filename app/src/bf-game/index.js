@@ -54,7 +54,9 @@ export const GamePhase = {
   /** Player has used a loot card and is picking a target */
   ChoosingLootTarget: "ChoosingLootTarget",
   /** Loot target is selecting a card to give away */
-  ResolvingLoot: "ResolvingLoot"
+  ResolvingLoot: "ResolvingLoot",
+  /** Player is peeking top 3 cards in deck */
+  Peeking: "Peeking"
 };
 
 /**
@@ -224,6 +226,8 @@ export function playCard(gameState, userId, card) {
     newGameState.attackCards++;
     // skip the drawing phase
     newGameState.turnCount++;
+  } else if (card.type === CardType.Peek) {
+    newGameState.specialPhase = GamePhase.Peeking;
   }
 
   // dont send to discard pile, as card has been transfered to the looter
@@ -303,5 +307,11 @@ export function setLootTarget(gameState, targetId) {
   const newGameState = deepClone(gameState);
   newGameState.lootTargetId = targetId;
   newGameState.specialPhase = GamePhase.ResolvingLoot;
+  return newGameState;
+}
+
+export function resetPhase(gameState) {
+  const newGameState = deepClone(gameState);
+  newGameState.specialPhase = null;
   return newGameState;
 }

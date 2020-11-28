@@ -70,7 +70,7 @@ $card-colors: (
   Resurect: $color-green,
   Skip: $color-light-yellow,
   Attack: $color-orange,
-  Loot: $color-purple,
+  Loot: $color-light-purple,
   Deny: $color-yellow,
   Shuffle: $color-blue,
   Peek: $color-purple,

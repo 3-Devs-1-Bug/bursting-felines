@@ -79,6 +79,11 @@ const store = createStore({
     setLootTarget({ state: { gameState }, dispatch }, targetId) {
       const newState = BF.setLootTarget(gameState, targetId);
       return dispatch("updateGame", newState);
+    },
+
+    resetPhase({ state: { gameState }, dispatch }) {
+      const newState = BF.resetPhase(gameState);
+      return dispatch("updateGame", newState);
     }
   },
   modules: {}
