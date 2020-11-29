@@ -39,6 +39,12 @@ export default {
       }
 
       const shortName = this.currentPlayer.substring(0, 8);
+
+      if (this.gameState.specialPhase === GamePhase.Peeking) {
+        const subject = this.isUserTurn ? "You are" : `${shortName} is`;
+        return `${subject} peeking the deck`;
+      }
+
       if (this.isUserTurn) {
         let message = `It's your turn`;
         const { attackCards } = this.gameState;

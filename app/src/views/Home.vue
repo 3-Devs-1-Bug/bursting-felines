@@ -23,7 +23,7 @@
       <li>Deny card</li>
       <li><del>Attack card</del></li>
       <li><del>Loot card</del></li>
-      <li>Peek card</li>
+      <li><del>Peek card</del></li>
       <li>Combo cards</li>
       <li>Handle the endgame</li>
       <li>Private lobby system</li>

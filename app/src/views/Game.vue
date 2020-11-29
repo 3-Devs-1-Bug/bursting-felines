@@ -43,6 +43,12 @@
         :opponents="opponentsAlive"
         @set-loot-target="setLootTarget"
       />
+      <PeekPhase
+        v-if="currentPhase === GamePhase.Peeking"
+        :cards="top3cardsInDeck"
+        :countdown="peekTimeLeft"
+        @dismiss="resetPhase"
+      />
     </div>
   </template>
 
@@ -70,6 +76,7 @@ import Hand from "../components/Hand";
 import CardPile from "../components/CardPile";
 import PerishPhase from "../components/PerishPhase";
 import LootPhase from "../components/LootPhase";
+import PeekPhase from "../components/PeekPhase";
 
 import {
   getCurrentPlayerId,
@@ -88,11 +95,13 @@ export default {
     Hand,
     CardPile,
     PerishPhase,
-    LootPhase
+    LootPhase,
+    PeekPhase
   },
 
   data() {
     return {
+      peekTimeLeft: 0,
       resolveCountdown: 0,
       perishCountdown: null,
       GamePhase
@@ -171,6 +180,14 @@ export default {
         return [];
       }
       return getOpponentsAlive(this.gameState);
+    },
+    top3cardsInDeck() {
+      const top3 = this.gameState?.deck.slice(0, 3);
+      top3.reverse();
+      return top3;
+    },
+    isPeekPhase() {
+      return this.gameState?.specialPhase === GamePhase.Peeking;
     }
   },
 
@@ -192,6 +209,23 @@ export default {
 
         this.perishCountdown = setInterval(timer, 10);
       }
+    },
+    isPeekPhase(value, oldValue) {
+      if (!value) clearInterval(this.peekCountDown);
+      if (this.isUserTurn && value && !oldValue) {
+        this.peekTimeLeft = 999;
+
+        const timer = () => {
+          if (this.peekTimeLeft <= 0) {
+            this.resetPhase();
+            clearInterval(this.peekCountDown);
+            return;
+          }
+          this.peekTimeLeft--;
+        };
+
+        this.peekCountDown = setInterval(timer, 1000);
+      }
     }
   },
 
@@ -207,7 +241,8 @@ export default {
       "insertPerish",
       "perish",
       "playCard",
-      "setLootTarget"
+      "setLootTarget",
+      "resetPhase"
     ])
   }
 };
