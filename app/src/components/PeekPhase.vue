@@ -59,8 +59,6 @@ $max-translate-offset: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 10%;
-  overflow: auto;
   &__Card {
     transform: translateX(calc(var(--card-offset-x) * #{$max-translate-offset}))
       translateY(calc(var(--card-offset-y) * #{$max-translate-offset}));
