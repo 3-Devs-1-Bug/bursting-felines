@@ -213,7 +213,7 @@ export default {
     isPeekPhase(value, oldValue) {
       if (!value) clearInterval(this.peekCountDown);
       if (this.isUserTurn && value && !oldValue) {
-        this.peekTimeLeft = 10;
+        this.peekTimeLeft = 999;
 
         const timer = () => {
           if (this.peekTimeLeft <= 0) {

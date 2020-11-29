@@ -8,8 +8,7 @@
         :text="card.text"
         class="PeekPile__Card"
         :style="{
-          '--card-offset-x': getOffset(i).x,
-          '--card-offset-y': getOffset(i).y
+          '--peek-phase-card-index': i
         }"
       />
     </div>
@@ -41,27 +40,25 @@ export default {
       default: 0
     }
   },
-  emits: ["dismiss"],
-  methods: {
-    getOffset(index) {
-      return {
-        x: index * -22 + 20,
-        y: index * -4
-      };
-    }
-  }
+  emits: ["dismiss"]
 };
 </script>
 
 <style lang="scss">
 $max-translate-offset: 0.5rem;
+// adjust these variables
+$interval-x: -10rem;
+$interval-y: -2rem;
+$offset-x: 10rem;
 .PeekPile {
   display: flex;
   align-items: center;
   justify-content: center;
   &__Card {
-    transform: translateX(calc(var(--card-offset-x) * #{$max-translate-offset}))
-      translateY(calc(var(--card-offset-y) * #{$max-translate-offset}));
+    transform: translateX(
+        calc(var(--peek-phase-card-index) * #{$interval-x} + #{$offset-x})
+      )
+      translateY(calc(var(--peek-phase-card-index) * #{$interval-y}));
   }
 }
 .Info {
