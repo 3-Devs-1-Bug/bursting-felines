@@ -8,12 +8,6 @@
   <template v-if="gameState">
     <Opponents :players="opponents" />
     <div class="GameBoard">
-      <PeekPhase
-        v-if="isUserTurn && currentPhase && currentPhase === GamePhase.Peeking"
-        :cards="top3cardsInDeck"
-        :countdown="peekTimeLeft"
-        @dismiss="resetPhase"
-      />
       <button :disabled="!isUserTurn" @click="drawCard">
         <CardPile :cards="gameState.deck" :face-down="true" />
       </button>
@@ -49,7 +43,12 @@
         :opponents="opponentsAlive"
         @set-loot-target="setLootTarget"
       />
-      
+      <PeekPhase
+        v-if="currentPhase === GamePhase.Peeking"
+        :cards="top3cardsInDeck"
+        :countdown="peekTimeLeft"
+        @dismiss="resetPhase"
+      />
     </div>
   </template>
 
@@ -214,7 +213,7 @@ export default {
     isPeekPhase(value, oldValue) {
       if (!value) clearInterval(this.peekCountDown);
       if (this.isUserTurn && value && !oldValue) {
-        this.peekTimeLeft = 15;
+        this.peekTimeLeft = 10;
 
         const timer = () => {
           if (this.peekTimeLeft <= 0) {
