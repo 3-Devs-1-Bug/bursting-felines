@@ -13,6 +13,9 @@
       </button>
       <CardPile :cards="gameState.discardPile" :is-messy="true" />
     </div>
+    <div>
+      {{ `Card validated in ${submitTimeLeft}` }}
+    </div>
     <Information
       :is-user-turn="isUserTurn"
       :user-id="userId"
@@ -24,7 +27,7 @@
       :current-phase="currentPhase"
       :player-cards="playerCards"
       :user-id="userId"
-      @play-card="playCard"
+      @play-card="submitCard"
     />
     <div v-if="isUserTurn && currentPhase">
       <PerishPhase
@@ -105,6 +108,7 @@ export default {
     return {
       peekTimeLeft: 0,
       resolveCountdown: 0,
+      submitTimeLeft: 0,
       perishCountdown: null,
       GamePhase
     };
@@ -193,6 +197,9 @@ export default {
     },
     isPeekPhase() {
       return this.gameState?.specialPhase === GamePhase.Peeking;
+    },
+    isSubmitting() {
+      return this.gameState?.isSubmitting;
     }
   },
 
@@ -231,6 +238,23 @@ export default {
 
         this.peekCountDown = setInterval(timer, 1000);
       }
+    },
+    isSubmitting(value, oldValue) {
+      if (!value) clearInterval(this.submitCountDown);
+      if (this.isUserTurn && value && !oldValue) {
+        this.submitTimeLeft = 3;
+
+        const timer = () => {
+          if (this.submitTimeLeft <= 0) {
+            this.playCard(this.userId);
+            clearInterval(this.submitCountDown);
+            return;
+          }
+          this.submitTimeLeft--;
+        };
+
+        this.submitCountDown = setInterval(timer, 1000);
+      }
     }
   },
 
@@ -247,7 +271,8 @@ export default {
       "perish",
       "playCard",
       "setLootTarget",
-      "resetPhase"
+      "resetPhase",
+      "submitCard"
     ])
   }
 };

@@ -165,20 +165,52 @@ export function drawCard(gameState) {
 }
 
 /**
+ * Removes the card from the players hand, and adds it to the discard pile.
+ * The card is not yet processed, as a player could play a deny card on top,
+ * cancelling it's effect.
+ *
+ * @param {GameState} gameState Current state of the game
+ * @param {Card} card The card the player chose to submit
+ * @returns {GameState} New state of the game.
+ */
+export function submitCard(gameState, userId, card) {
+  const newGameState = deepClone(gameState);
+
+  newGameState.isSubmitting = true;
+  // remove card from player's hand
+  const playerHand = newGameState.hands[userId];
+  const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
+  playerHand.splice(cardIndex, 1);
+
+  console.log(userId + " submitted " + card.type);
+
+  if (card.type === CardType.Resurect) {
+    // you can't deny a resurrection
+    return playCard(gameState, userId, card);
+  }
+  if (gameState.specialPhase === GamePhase.ResolvingLoot) {
+    console.log("not implemented yet");
+    return playCard(gameState, userId, card);
+  } else {
+    newGameState.discardPile.unshift(card);
+  }
+
+  return newGameState;
+}
+
+/**
  * Calculate the new state of the game when a player chooses a card to play.
  *
  * @param {GameState} gameState Current state of the game
  * @param {Card} card The card the player chose to play
  * @returns {GameState} New state of the game.
  */
-export function playCard(gameState, userId, card) {
+export function playCard(gameState, userId) {
   const newGameState = deepClone(gameState);
+  newGameState.isSubmitting = false;
 
-  // remove card from player's hand
-  // if ResolvingLoot, currentPlayer is not the one who played the card...
-  const playerHand = newGameState.hands[userId];
-  const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
-  playerHand.splice(cardIndex, 1);
+  // get submitted card
+  const card = gameState.discardPile[0];
 
   console.log(userId + " played " + card.type);
 
@@ -229,10 +261,6 @@ export function playCard(gameState, userId, card) {
   } else if (card.type === CardType.Peek) {
     newGameState.specialPhase = GamePhase.Peeking;
   }
-
-  // dont send to discard pile, as card has been transfered to the looter
-  if (gameState.specialPhase !== GamePhase.ResolvingLoot)
-    newGameState.discardPile.unshift(card);
 
   console.log("New phase " + newGameState.specialPhase);
 
