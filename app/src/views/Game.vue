@@ -14,7 +14,7 @@
       <CardPile :cards="gameState.discardPile" :is-messy="true" />
     </div>
     <div>
-      {{ `Card validated in ${submitTimeLeft}` }}
+      {{ `Card validated in ${submitTimeLeft} ${isSubmitting}` }}
     </div>
     <Information
       :is-user-turn="isUserTurn"
@@ -199,7 +199,7 @@ export default {
       return this.gameState?.specialPhase === GamePhase.Peeking;
     },
     isSubmitting() {
-      return this.gameState?.isSubmitting;
+      return this.gameState?.submitTime > 0;
     }
   },
 
@@ -242,7 +242,7 @@ export default {
     isSubmitting(value, oldValue) {
       if (!value) clearInterval(this.submitCountDown);
       if (this.isUserTurn && value && !oldValue) {
-        this.submitTimeLeft = 3;
+        this.submitTimeLeft = this.gameState?.submitTime;
 
         const timer = () => {
           if (this.submitTimeLeft <= 0) {

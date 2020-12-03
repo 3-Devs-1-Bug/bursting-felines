@@ -176,7 +176,7 @@ export function drawCard(gameState) {
 export function submitCard(gameState, userId, card) {
   const newGameState = deepClone(gameState);
 
-  newGameState.isSubmitting = true;
+  newGameState.submitTime = 3;
   // remove card from player's hand
   const playerHand = newGameState.hands[userId];
   const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
@@ -186,11 +186,11 @@ export function submitCard(gameState, userId, card) {
 
   if (card.type === CardType.Resurect) {
     // you can't deny a resurrection
-    return playCard(gameState, userId, card);
-  }
-  if (gameState.specialPhase === GamePhase.ResolvingLoot) {
-    console.log("not implemented yet");
-    return playCard(gameState, userId, card);
+    newGameState.discardPile.unshift(card);
+    return playCard(newGameState, userId, card);
+  } else if (gameState.specialPhase === GamePhase.ResolvingLoot) {
+    // don't add to discard pile, the card is going to another player
+    return playCard(newGameState, userId, card);
   } else {
     newGameState.discardPile.unshift(card);
   }
@@ -202,21 +202,21 @@ export function submitCard(gameState, userId, card) {
  * Calculate the new state of the game when a player chooses a card to play.
  *
  * @param {GameState} gameState Current state of the game
- * @param {Card} card The card the player chose to play
+ * @param {Card} priorityCard A card that can skip submit phase (eg. Resurect)
  * @returns {GameState} New state of the game.
  */
-export function playCard(gameState, userId) {
+export function playCard(gameState, userId, priorityCard) {
   const newGameState = deepClone(gameState);
-  newGameState.isSubmitting = false;
+  newGameState.submitTime = 0;
 
   // get submitted card
-  const card = gameState.discardPile[0];
+  const card = priorityCard || gameState.discardPile[0];
 
   console.log(userId + " played " + card.type);
 
   if (gameState.specialPhase === GamePhase.ResolvingLoot) {
     console.log(
-      `${newGameState.lootTargetId} gave ${newGameState.looterId} a ${card.type} card`
+      `[${newGameState.lootTargetId}] gave [${newGameState.looterId}] a ${card.type} card`
     );
     const looterHand = newGameState.hands[newGameState.looterId];
     looterHand.push(card);
