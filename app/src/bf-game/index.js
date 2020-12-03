@@ -176,7 +176,7 @@ export function drawCard(gameState) {
 export function submitCard(gameState, userId, card) {
   const newGameState = deepClone(gameState);
 
-  newGameState.submitTime = 3;
+  newGameState.submitTime = 5;
   // remove card from player's hand
   const playerHand = newGameState.hands[userId];
   const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
@@ -260,6 +260,9 @@ export function playCard(gameState, userId, priorityCard) {
     newGameState.turnCount++;
   } else if (card.type === CardType.Peek) {
     newGameState.specialPhase = GamePhase.Peeking;
+  } else if (card.type === CardType.Deny) {
+    // nothing happens
+    return newGameState;
   }
 
   console.log("New phase " + newGameState.specialPhase);

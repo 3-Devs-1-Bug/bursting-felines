@@ -27,6 +27,7 @@
       :current-phase="currentPhase"
       :player-cards="playerCards"
       :user-id="userId"
+      :is-submitting="isSubmitting"
       @play-card="submitCard"
     />
     <div v-if="isUserTurn && currentPhase">
@@ -240,13 +241,15 @@ export default {
       }
     },
     isSubmitting(value, oldValue) {
+      console.log("this changes from", oldValue, value);
       if (!value) clearInterval(this.submitCountDown);
-      if (this.isUserTurn && value && !oldValue) {
+      if (value && value !== oldValue) {
+        clearInterval(this.submitCountDown);
         this.submitTimeLeft = this.gameState?.submitTime;
 
         const timer = () => {
           if (this.submitTimeLeft <= 0) {
-            this.playCard(this.userId);
+            if (this.isUserTurn) this.playCard(this.userId);
             clearInterval(this.submitCountDown);
             return;
           }

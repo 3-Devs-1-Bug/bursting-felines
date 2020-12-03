@@ -26,6 +26,7 @@ export default {
   },
   props: {
     isUserTurn: Boolean,
+    isSubmitting: Boolean,
     currentPhase: {
       type: String,
       default: null,
@@ -54,10 +55,16 @@ export default {
   methods: {
     isCardDisabled(card) {
       if (!this.isUserTurn) {
-        // if player is beeing looted, he can select a card
+        // if player is beeing looted, he can select any card
         if (this.currentPhase === GamePhase.ResolvingLoot) {
           return false;
-        } else return true;
+        } else if (
+          // you can play a deny card if an other card is being submitted
+          this.isSubmitting &&
+          card.type === CardType.Deny
+        )
+          return false;
+        else return true;
       }
 
       // resurect cards can only be played during the ResolvingPerish phase
