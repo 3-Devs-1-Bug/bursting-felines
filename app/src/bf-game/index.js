@@ -176,7 +176,7 @@ export function drawCard(gameState) {
 export function submitCard(gameState, userId, card) {
   const newGameState = deepClone(gameState);
 
-  newGameState.submitTime = 5;
+  newGameState.isSubmitting = true;
   // remove card from player's hand
   const playerHand = newGameState.hands[userId];
   const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
@@ -192,7 +192,15 @@ export function submitCard(gameState, userId, card) {
     // don't add to discard pile, the card is going to another player
     return playCard(newGameState, userId, card);
   } else {
+    // we need to save this info in case a loot card is played, followed by
+    // two deny cards, cancelling each other out, so we know the looter id
+    card.userId = userId;
     newGameState.discardPile.unshift(card);
+  }
+
+  if (card.type === CardType.Deny) {
+    // force timer reset
+    newGameState.timerRandom = Date.now();
   }
 
   return newGameState;
@@ -207,12 +215,27 @@ export function submitCard(gameState, userId, card) {
  */
 export function playCard(gameState, userId, priorityCard) {
   const newGameState = deepClone(gameState);
-  newGameState.submitTime = 0;
+  newGameState.isSubmitting = false;
 
   // get submitted card
-  const card = priorityCard || gameState.discardPile[0];
+  let card = priorityCard || gameState.discardPile[0];
 
   console.log(userId + " played " + card.type);
+
+  if (card.type === CardType.Deny) {
+    let denyCardCount = 1;
+    while (gameState.discardPile[denyCardCount].type === CardType.Deny) {
+      denyCardCount++;
+    }
+
+    // if an even number of deny cards are on top (ie. they cancelled themselves out)
+    // we must play the last valid card, otherwise do nothing, as card is cancelled.
+    if (denyCardCount % 2 == 0) {
+      card = gameState.discardPile[denyCardCount];
+    }
+
+    return newGameState;
+  }
 
   if (gameState.specialPhase === GamePhase.ResolvingLoot) {
     console.log(
@@ -240,10 +263,10 @@ export function playCard(gameState, userId, priorityCard) {
     newGameState.deck = shuffle(gameState.deck);
   } else if (card.type === CardType.Loot) {
     // set looter
-    newGameState.looterId = userId;
+    newGameState.looterId = card.userId || userId;
     const opponentsAlive = getOpponentsAlive(gameState);
 
-    console.log(userId + " is looter");
+    console.log(newGameState.looterId + " is looter");
 
     newGameState.specialPhase = GamePhase.ChoosingLootTarget;
 
@@ -260,9 +283,6 @@ export function playCard(gameState, userId, priorityCard) {
     newGameState.turnCount++;
   } else if (card.type === CardType.Peek) {
     newGameState.specialPhase = GamePhase.Peeking;
-  } else if (card.type === CardType.Deny) {
-    // nothing happens
-    return newGameState;
   }
 
   console.log("New phase " + newGameState.specialPhase);

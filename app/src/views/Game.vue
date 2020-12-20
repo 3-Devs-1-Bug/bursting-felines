@@ -200,7 +200,10 @@ export default {
       return this.gameState?.specialPhase === GamePhase.Peeking;
     },
     isSubmitting() {
-      return this.gameState?.submitTime > 0;
+      return this.gameState?.isSubmitting;
+    },
+    shouldResetTimer() {
+      return this.gameState?.timerRandom;
     }
   },
 
@@ -240,24 +243,34 @@ export default {
         this.peekCountDown = setInterval(timer, 1000);
       }
     },
-    isSubmitting(value, oldValue) {
-      console.log("this changes from", oldValue, value);
-      if (!value) clearInterval(this.submitCountDown);
-      if (value && value !== oldValue) {
+    isSubmitting(newValue, oldValue) {
+      console.log("is submitting", newValue);
+      if (!newValue) clearInterval(this.submitCountDown);
+      if (newValue && newValue !== oldValue) {
         clearInterval(this.submitCountDown);
-        this.submitTimeLeft = this.gameState?.submitTime;
+        this.submitTimeLeft = 4;
 
-        const timer = () => {
+        this.submitCountDown = setInterval(() => {
           if (this.submitTimeLeft <= 0) {
             if (this.isUserTurn) this.playCard(this.userId);
             clearInterval(this.submitCountDown);
             return;
           }
           this.submitTimeLeft--;
-        };
-
-        this.submitCountDown = setInterval(timer, 1000);
+        }, 1000);
       }
+    },
+    shouldResetTimer() {
+      clearInterval(this.submitCountDown);
+      this.submitTimeLeft = 4;
+      this.submitCountDown = setInterval(() => {
+        if (this.submitTimeLeft <= 0) {
+          if (this.isUserTurn) this.playCard(this.userId);
+          clearInterval(this.submitCountDown);
+          return;
+        }
+        this.submitTimeLeft--;
+      }, 1000);
     }
   },
 
@@ -277,6 +290,14 @@ export default {
       "resetPhase",
       "submitCard"
     ])
+    // getTimer() {
+    //   if (this.submitTimeLeft <= 0) {
+    //     if (this.isUserTurn) this.playCard(this.userId);
+    //     clearInterval(this.submitCountDown);
+    //     return;
+    //   }
+    //   this.submitTimeLeft--;
+    // }
   }
 };
 </script>
