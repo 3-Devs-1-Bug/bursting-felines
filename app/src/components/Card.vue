@@ -13,7 +13,10 @@
     <div v-if="type" class="Card__Type">
       {{ type }}
     </div>
-    <div v-if="hasRevealAnimation" class="Card__Overlay" />
+    <div
+      v-if="hasRevealAnimation && type !== CardType.Resurect"
+      class="Card__Overlay"
+    />
   </component>
 </template>
 
@@ -49,6 +52,11 @@ export default {
       required: false,
       default: false
     }
+  },
+  data() {
+    return {
+      CardType
+    };
   }
 };
 </script>
