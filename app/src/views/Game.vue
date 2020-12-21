@@ -56,15 +56,17 @@
     You died a terrible death...
   </p>
 
-  <hr />
-  <code>
-    <pre>{{ roomJson }}</pre>
-  </code>
+  <template v-if="isDebug">
+    <hr />
+    <code>
+      <pre>{{ roomJson }}</pre>
+    </code>
 
-  <hr />
-  <code>
-    <pre>{{ gameJson }}</pre>
-  </code>
+    <hr />
+    <code>
+      <pre>{{ gameJson }}</pre>
+    </code>
+  </template>
 </template>
 
 <script>
@@ -109,6 +111,9 @@ export default {
   },
 
   computed: {
+    isDebug() {
+      return process.env.NODE_ENV === "development" || this.$route.query.debug;
+    },
     ...mapState(["gameState", "room", "userId"]),
     gameJson() {
       return JSON.stringify(this.gameState, null, 2);
