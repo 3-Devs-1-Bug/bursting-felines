@@ -8,6 +8,7 @@
         :key="card.type + i"
         :type="faceDown ? undefined : card.type"
         :text="faceDown ? '' : card.text"
+        :has-reveal-animation="!faceDown"
         class="CardPile__Card"
         :style="{
           '--card-offset-x': offsets[i].x,

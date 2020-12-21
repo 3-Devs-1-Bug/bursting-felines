@@ -13,9 +13,7 @@
       </button>
       <CardPile :cards="gameState.discardPile" :is-messy="true" />
     </div>
-    <div>
-      {{ `Card validated in ${submitTimeLeft} ${isSubmitting}` }}
-    </div>
+
     <Information
       :is-user-turn="isUserTurn"
       :user-id="userId"
@@ -62,6 +60,9 @@
 
   <template v-if="isDebug">
     <hr />
+    <div>
+      {{ `Card validated in ${submitTimeLeft} ${isSubmitting}` }}
+    </div>
     <code>
       <pre>{{ roomJson }}</pre>
     </code>
@@ -250,27 +251,13 @@ export default {
         clearInterval(this.submitCountDown);
         this.submitTimeLeft = 4;
 
-        this.submitCountDown = setInterval(() => {
-          if (this.submitTimeLeft <= 0) {
-            if (this.isUserTurn) this.playCard(this.userId);
-            clearInterval(this.submitCountDown);
-            return;
-          }
-          this.submitTimeLeft--;
-        }, 1000);
+        this.submitCountDown = setInterval(this.getTimer, 1000);
       }
     },
     shouldResetTimer() {
       clearInterval(this.submitCountDown);
       this.submitTimeLeft = 4;
-      this.submitCountDown = setInterval(() => {
-        if (this.submitTimeLeft <= 0) {
-          if (this.isUserTurn) this.playCard(this.userId);
-          clearInterval(this.submitCountDown);
-          return;
-        }
-        this.submitTimeLeft--;
-      }, 1000);
+      this.submitCountDown = setInterval(this.getTimer, 1000);
     }
   },
 
@@ -289,15 +276,15 @@ export default {
       "setLootTarget",
       "resetPhase",
       "submitCard"
-    ])
-    // getTimer() {
-    //   if (this.submitTimeLeft <= 0) {
-    //     if (this.isUserTurn) this.playCard(this.userId);
-    //     clearInterval(this.submitCountDown);
-    //     return;
-    //   }
-    //   this.submitTimeLeft--;
-    // }
+    ]),
+    getTimer() {
+      if (this.submitTimeLeft <= 0) {
+        clearInterval(this.submitCountDown);
+        if (this.isUserTurn) this.playCard(this.userId);
+        return;
+      }
+      this.submitTimeLeft--;
+    }
   }
 };
 </script>

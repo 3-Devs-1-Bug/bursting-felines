@@ -220,8 +220,6 @@ export function playCard(gameState, userId, priorityCard) {
   // get submitted card
   let card = priorityCard || gameState.discardPile[0];
 
-  console.log(userId + " played " + card.type);
-
   if (card.type === CardType.Deny) {
     let denyCardCount = 1;
     while (gameState.discardPile[denyCardCount].type === CardType.Deny) {
@@ -229,13 +227,16 @@ export function playCard(gameState, userId, priorityCard) {
     }
 
     // if an even number of deny cards are on top (ie. they cancelled themselves out)
-    // we must play the last valid card, otherwise do nothing, as card is cancelled.
+    // we must play the last valid card
     if (denyCardCount % 2 == 0) {
       card = gameState.discardPile[denyCardCount];
+    } else {
+      // odd number of deny cards, do nothing, as card is cancelled.
+      return newGameState;
     }
-
-    return newGameState;
   }
+
+  console.log((card.userId || userId) + " played " + card.type);
 
   if (gameState.specialPhase === GamePhase.ResolvingLoot) {
     console.log(

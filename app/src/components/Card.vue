@@ -13,6 +13,7 @@
     <div v-if="type" class="Card__Type">
       {{ type }}
     </div>
+    <div v-if="hasRevealAnimation" class="Card__Overlay" />
   </component>
 </template>
 
@@ -39,6 +40,11 @@ export default {
       default: "div"
     },
     isPlaceHolder: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    hasRevealAnimation: {
       type: Boolean,
       required: false,
       default: false
@@ -82,6 +88,7 @@ $card-colors: (
 );
 
 .Card {
+  position: relative;
   background-color: $color-background;
   border: 0.2rem solid $color-primary;
   border-radius: 0.4rem;
@@ -120,6 +127,25 @@ $card-colors: (
   @each $card-type, $card-color in $card-colors {
     &--#{$card-type} {
       @include card-colors-style($card-color);
+    }
+  }
+
+  &__Overlay {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.6);
+    animation: shrink 5s forwards;
+    position: absolute;
+  }
+
+  @keyframes shrink {
+    from {
+      transform: scaleY(1);
+    }
+    to {
+      transform: scaleY(0);
     }
   }
 }
