@@ -13,6 +13,7 @@
       </button>
       <CardPile :cards="gameState.discardPile" :is-messy="true" />
     </div>
+
     <Information
       :is-user-turn="isUserTurn"
       :user-id="userId"
@@ -24,7 +25,8 @@
       :current-phase="currentPhase"
       :player-cards="playerCards"
       :user-id="userId"
-      @play-card="playCard"
+      :is-submitting="isSubmitting"
+      @play-card="submitCard"
     />
     <div v-if="isUserTurn && currentPhase">
       <PerishPhase
@@ -58,6 +60,9 @@
 
   <template v-if="isDebug">
     <hr />
+    <div>
+    {{ `Card validated in ${submitTimeLeft}, is submitting: ${isSubmitting}` }}
+    </div>
     <code>
       <pre>{{ roomJson }}</pre>
     </code>
@@ -105,6 +110,7 @@ export default {
     return {
       peekTimeLeft: 0,
       resolveCountdown: 0,
+      submitTimeLeft: 0,
       perishCountdown: null,
       GamePhase
     };
@@ -193,6 +199,12 @@ export default {
     },
     isPeekPhase() {
       return this.gameState?.specialPhase === GamePhase.Peeking;
+    },
+    isSubmitting() {
+      return this.gameState?.isSubmitting;
+    },
+    shouldResetTimer() {
+      return this.gameState?.timerRandom;
     }
   },
 
@@ -231,6 +243,19 @@ export default {
 
         this.peekCountDown = setInterval(timer, 1000);
       }
+    },
+    isSubmitting(isSubmitting) {
+      // always clear old timer
+      clearInterval(this.submitCountDown);
+      if (isSubmitting) {
+        this.submitTimeLeft = 4;
+        this.submitCountDown = setInterval(this.getTimer, 1000);
+      }
+    },
+    shouldResetTimer() {
+      clearInterval(this.submitCountDown);
+      this.submitTimeLeft = 4;
+      this.submitCountDown = setInterval(this.getTimer, 1000);
     }
   },
 
@@ -247,8 +272,17 @@ export default {
       "perish",
       "playCard",
       "setLootTarget",
-      "resetPhase"
-    ])
+      "resetPhase",
+      "submitCard"
+    ]),
+    getTimer() {
+      if (this.submitTimeLeft <= 0) {
+        clearInterval(this.submitCountDown);
+        if (this.isUserTurn) this.playCard(this.userId);
+        return;
+      }
+      this.submitTimeLeft--;
+    }
   }
 };
 </script>

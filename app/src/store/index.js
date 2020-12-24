@@ -70,9 +70,14 @@ const store = createStore({
       return dispatch("updateGame", BF.perish(gameState));
     },
 
-    playCard({ state: { gameState }, dispatch }, payload) {
+    playCard({ state: { gameState }, dispatch }, userId) {
+      const newState = BF.playCard(gameState, userId);
+      return dispatch("updateGame", newState);
+    },
+
+    submitCard({ state: { gameState }, dispatch }, payload) {
       const { userId, card } = payload;
-      const newState = BF.playCard(gameState, userId, card);
+      const newState = BF.submitCard(gameState, userId, card);
       return dispatch("updateGame", newState);
     },
 

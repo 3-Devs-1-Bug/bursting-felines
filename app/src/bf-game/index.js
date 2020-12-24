@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from "uuid";
  * @property {string} looterId Stores the id of the player that used a loot card
  * @property {string} lootTargetId Stores the id of the player must give up a card to the looter
  * @property {number} attackCards Number of attack cards played
+ * @property {number} timerRandom If this value changes, it indicates the timer needs to be reset
  */
 
 /**
@@ -165,26 +166,82 @@ export function drawCard(gameState) {
 }
 
 /**
- * Calculate the new state of the game when a player chooses a card to play.
+ * Removes the card from the players hand, and adds it to the discard pile.
+ * The card is not yet processed, as a player could play a deny card on top,
+ * cancelling it's effect.
  *
  * @param {GameState} gameState Current state of the game
- * @param {Card} card The card the player chose to play
+ * @param {Card} card The card the player chose to submit
  * @returns {GameState} New state of the game.
  */
-export function playCard(gameState, userId, card) {
+export function submitCard(gameState, userId, card) {
   const newGameState = deepClone(gameState);
 
+  newGameState.isSubmitting = true;
   // remove card from player's hand
-  // if ResolvingLoot, currentPlayer is not the one who played the card...
   const playerHand = newGameState.hands[userId];
   const cardIndex = playerHand.map(card => card.id).indexOf(card.id);
   playerHand.splice(cardIndex, 1);
 
-  console.log(userId + " played " + card.type);
+  console.log(userId + " submitted " + card.type);
+
+  if (card.type === CardType.Resurect) {
+    // you can't deny a resurrection
+    newGameState.discardPile.unshift(card);
+    return playCard(newGameState, userId, card);
+  } else if (gameState.specialPhase === GamePhase.ResolvingLoot) {
+    // don't add to discard pile, the card is going to another player
+    return playCard(newGameState, userId, card);
+  } else {
+    // we need to save this info in case a loot card is played, followed by
+    // two deny cards, cancelling each other out, so we know the looter id
+    card.userId = userId;
+    newGameState.discardPile.unshift(card);
+  }
+
+  if (card.type === CardType.Deny) {
+    // force timer reset
+    newGameState.timerRandom = Date.now();
+  }
+
+  return newGameState;
+}
+
+/**
+ * Calculate the new state of the game when a player chooses a card to play.
+ *
+ * @param {GameState} gameState Current state of the game
+ * @param {Card} priorityCard A card that can skip submit phase (eg. Resurect)
+ * @returns {GameState} New state of the game.
+ */
+export function playCard(gameState, userId, priorityCard) {
+  const newGameState = deepClone(gameState);
+  newGameState.isSubmitting = false;
+
+  // get submitted card
+  let card = priorityCard || gameState.discardPile[0];
+
+  if (card.type === CardType.Deny) {
+    let denyCardCount = 1;
+    while (gameState.discardPile[denyCardCount].type === CardType.Deny) {
+      denyCardCount++;
+    }
+
+    // if an even number of deny cards are on top (ie. they cancelled themselves out)
+    // we must play the last valid card
+    if (denyCardCount % 2 == 0) {
+      card = gameState.discardPile[denyCardCount];
+    } else {
+      // odd number of deny cards, do nothing, as card is cancelled.
+      return newGameState;
+    }
+  }
+
+  console.log((card.userId || userId) + " played " + card.type);
 
   if (gameState.specialPhase === GamePhase.ResolvingLoot) {
     console.log(
-      `${newGameState.lootTargetId} gave ${newGameState.looterId} a ${card.type} card`
+      `[${newGameState.lootTargetId}] gave [${newGameState.looterId}] a ${card.type} card`
     );
     const looterHand = newGameState.hands[newGameState.looterId];
     looterHand.push(card);
@@ -208,10 +265,10 @@ export function playCard(gameState, userId, card) {
     newGameState.deck = shuffle(gameState.deck);
   } else if (card.type === CardType.Loot) {
     // set looter
-    newGameState.looterId = userId;
+    newGameState.looterId = card.userId || userId;
     const opponentsAlive = getOpponentsAlive(gameState);
 
-    console.log(userId + " is looter");
+    console.log(newGameState.looterId + " is looter");
 
     newGameState.specialPhase = GamePhase.ChoosingLootTarget;
 
@@ -229,10 +286,6 @@ export function playCard(gameState, userId, card) {
   } else if (card.type === CardType.Peek) {
     newGameState.specialPhase = GamePhase.Peeking;
   }
-
-  // dont send to discard pile, as card has been transfered to the looter
-  if (gameState.specialPhase !== GamePhase.ResolvingLoot)
-    newGameState.discardPile.unshift(card);
 
   console.log("New phase " + newGameState.specialPhase);
 

@@ -20,7 +20,7 @@
       <li><del>Skip card</del></li>
       <li><del>Resurect card</del></li>
       <li><del>Shuffle card</del></li>
-      <li>Deny card</li>
+      <li><del>Deny card</del></li>
       <li><del>Attack card</del></li>
       <li><del>Loot card</del></li>
       <li><del>Peek card</del></li>
