@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from "uuid";
  * @property {string} looterId Stores the id of the player that used a loot card
  * @property {string} lootTargetId Stores the id of the player must give up a card to the looter
  * @property {number} attackCards Number of attack cards played
+ * @property {number} timerRandom If this value changes, it indicates the timer needs to be reset
  */
 
 /**

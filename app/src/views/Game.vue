@@ -61,7 +61,7 @@
   <template v-if="isDebug">
     <hr />
     <div>
-      {{ `Card validated in ${submitTimeLeft} ${isSubmitting}` }}
+    {{ `Card validated in ${submitTimeLeft}, is submitting: ${isSubmitting}` }}
     </div>
     <code>
       <pre>{{ roomJson }}</pre>
@@ -244,13 +244,11 @@ export default {
         this.peekCountDown = setInterval(timer, 1000);
       }
     },
-    isSubmitting(newValue, oldValue) {
-      console.log("is submitting", newValue);
-      if (!newValue) clearInterval(this.submitCountDown);
-      if (newValue && newValue !== oldValue) {
-        clearInterval(this.submitCountDown);
+    isSubmitting(isSubmitting) {
+      // always clear old timer
+      clearInterval(this.submitCountDown);
+      if (isSubmitting) {
         this.submitTimeLeft = 4;
-
         this.submitCountDown = setInterval(this.getTimer, 1000);
       }
     },
