@@ -4,10 +4,21 @@
     whole view in a single element.
   -->
   <div>
-    <h1>About</h1>
+    <h1>Bursting felines</h1>
+    <h2>Presentation</h2>
     <p>
-      Bursting Felines is a clone of a game called "Exploding Kittens". The
-      source code is available on its
+      Bursting Felines is a clone of a game called "Exploding Kittens".
+    </p>
+    <div class="play">
+      <router-link to="/game/123">
+        <Button size="large">
+          Play now
+        </Button>
+      </router-link>
+    </div>
+    <h2>Contribute</h2>
+    <p>
+      The source code is available on its
       <a href="https://github.com/3-Devs-1-Bug/bursting-felines">
         Github Repository</a
       >.
@@ -33,8 +44,12 @@
 </template>
 
 <script>
+import Button from "../components/Button";
 export default {
-  name: "Home"
+  name: "Home",
+  components: {
+    Button
+  }
 };
 </script>
 
@@ -47,5 +62,12 @@ export default {
     color: grey;
     text-decoration: line-through;
   }
+}
+.play {
+  padding: 2em 0;
+  display: flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
