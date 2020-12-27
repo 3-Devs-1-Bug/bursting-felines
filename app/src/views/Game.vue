@@ -1,9 +1,5 @@
 <template>
-  <div>This is the game page</div>
-
   <Button @click="resetGame">Reset game</Button>
-
-  <hr />
 
   <template v-if="gameState">
     <Opponents :players="opponents" />
@@ -61,7 +57,9 @@
   <template v-if="isDebug">
     <hr />
     <div>
-    {{ `Card validated in ${submitTimeLeft}, is submitting: ${isSubmitting}` }}
+      {{
+        `Card validated in ${submitTimeLeft}, is submitting: ${isSubmitting}`
+      }}
     </div>
     <code>
       <pre>{{ roomJson }}</pre>
