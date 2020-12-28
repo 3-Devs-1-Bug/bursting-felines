@@ -15,6 +15,13 @@ const state = {
   }
 };
 
+const removePlayer = (userId, state) => {
+  state.players = state.players.filter(id => id !== userId);
+  delete state.statuses[userId];
+  delete state.hands[userId];
+  return state;
+};
+
 io.on("connection", socket => {
   console.log("User connected", socket.id);
 
@@ -28,6 +35,11 @@ io.on("connection", socket => {
     console.log("User disconnected", socket.id);
     state.room.users = state.room.users.filter(id => id !== socket.id);
     socket.to(defaultRoom).emit("room:update", state.room);
+
+    if (state.game) {
+      state.game = removePlayer(socket.id, state.game);
+      socket.to(defaultRoom).emit("game:update", state.game);
+    }
   });
 
   socket.on("game:join", cb => {
