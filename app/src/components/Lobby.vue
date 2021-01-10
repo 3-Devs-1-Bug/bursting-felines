@@ -59,11 +59,12 @@ export default {
     message() {
       if (this.isGameInProgress) {
         return "The game is in progress, waiting for the game host to restart the game.";
-      } else {
-        if (this.isGameHost)
-          return "When everyone is ready, click the button to launch the game.";
-        return "The game is about to start, waiting for the game host to launch the game.";
+      } 
+      if (this.isGameHost) {
+        return "When everyone is ready, click the button to launch the game.";
       }
+      return "The game is about to start, waiting for the game host to launch the game.";
+      
     }
   }
 };
