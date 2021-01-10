@@ -117,6 +117,7 @@ $card-colors: (
     font-size: 0.875rem;
     color: $color-primary;
     padding: 0.5rem;
+    width: 100%;
   }
 
   &__Type {
@@ -126,6 +127,7 @@ $card-colors: (
     align-items: center;
     font-size: 1.125rem;
     font-weight: 600;
+    width: 100%;
   }
 
   &--Placeholder {
