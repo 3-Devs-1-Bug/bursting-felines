@@ -1,7 +1,17 @@
 <template>
-  <Button @click="resetGame">Reset game</Button>
-
-  <template v-if="gameState">
+  <Lobby
+    v-if="isSpectator"
+    :users="spectators"
+    :user-id="userId"
+    :is-game-in-progress="isGameInProgress"
+    :game-host-id="gameHostId"
+    @reset-game="resetGame"
+  />
+  <template v-else-if="gameState">
+    <div v-if="spectators.length">
+      Someone in waiting in the lobby...
+      <Button @click="resetGame">Restart</Button>
+    </div>
     <Opponents :players="opponents" />
     <div class="GameBoard">
       <button :disabled="!isUserTurn" @click="drawCard">
@@ -76,12 +86,13 @@
 import { mapActions, mapState } from "vuex";
 import Opponents from "../components/Opponents";
 import Information from "../components/Information";
-import Button from "../components/Button";
 import Hand from "../components/Hand";
 import CardPile from "../components/CardPile";
 import PerishPhase from "../components/PerishPhase";
 import LootPhase from "../components/LootPhase";
 import PeekPhase from "../components/PeekPhase";
+import Lobby from "../components/Lobby";
+import Button from "../components/Button";
 
 import {
   getCurrentPlayerId,
@@ -101,7 +112,8 @@ export default {
     CardPile,
     PerishPhase,
     LootPhase,
-    PeekPhase
+    PeekPhase,
+    Lobby
   },
 
   data() {
@@ -117,6 +129,9 @@ export default {
   computed: {
     isDebug() {
       return process.env.NODE_ENV === "development" || this.$route.query.debug;
+    },
+    isGameInProgress() {
+      return this.gameState && this.gameState.players.length > 0;
     },
     ...mapState(["gameState", "room", "userId"]),
     gameJson() {
@@ -203,6 +218,20 @@ export default {
     },
     shouldResetTimer() {
       return this.gameState?.timerRandom;
+    },
+    isGameHost() {
+      if (!this.room) return true;
+      return this.room.users[0] === this.userId;
+    },
+    gameHostId() {
+      if (!this.room) return null;
+      return this.room.users[0];
+    },
+    spectators() {
+      if (!this.room) return [];
+      return this.room?.users.filter(
+        user => !this.gameState || !this.gameState.players.includes(user)
+      );
     }
   },
 
@@ -257,6 +286,14 @@ export default {
     }
   },
 
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventLeavingPage);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener("beforeunload", this.preventLeavingPage);
+  },
+
   mounted() {
     this.joinGame();
   },
@@ -273,6 +310,10 @@ export default {
       "resetPhase",
       "submitCard"
     ]),
+    preventLeavingPage(e) {
+      if (this.isDebug) return;
+      e.preventDefault();
+    },
     getTimer() {
       if (this.submitTimeLeft <= 0) {
         clearInterval(this.submitCountDown);
